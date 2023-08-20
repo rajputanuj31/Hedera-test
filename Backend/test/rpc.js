@@ -58,11 +58,21 @@ describe('AIPrompt Contract', function () {
     await aiPrompt.createRaffle(0,100,1000);
 
     const newcontract = await aiPrompt.connect(user1);
-    await newcontract.enterRaffle(0,{value : 1500});
+    await newcontract.enterRaffle(0,{value : 1000});
 
     const count = await newcontract.getParticipants(0);
     expect(count[0]).to.equal(user1.address);
+
   });
+
+  it('Fails at less amount', async function(){
+    await aiPrompt.safeMint(owner.address);
+    await aiPrompt.createRaffle(0,100,1000);
+
+    const newcontract = await aiPrompt.connect(user1);
+    await expect(newcontract.enterRaffle(0,{value : 100})).to.be.revertedWith("Less than require amount sent");
+
+  })
 
 
 
