@@ -1,33 +1,27 @@
-const hre = require("hardhat");
-const { expect } = require("chai");
+const { expect } = require('chai');
+const { ethers } = require('hardhat');
 
-// describe("RPC", function () {
-//   let contractAddress;
-//   let signers;
+describe('AIPrompt Contract', function () {
+  let aiPrompt;
+  let owner, user1, user2;
+  const TOKEN_ID = 0;
+  const DURATION = 86400; 
+  const AMOUNT = ethers.utils.parseEther('1'); 
 
-//   before(async function () {
-//     signers = await hre.ethers.getSigners();
-//   });
+  beforeEach(async function () {
+    [owner, user1, user2] = await ethers.getSigners();
+    const AIPrompt = await ethers.getContractFactory('AIPrompt');
+    aiPrompt = await AIPrompt.deploy();
+    await aiPrompt.deployed();
+  });
+  
+  it('Should retrieve current token ID', async function () {
+    const tokenId = await aiPrompt.getCurrentTokenId();
+    expect(tokenId).to.equal(0);
 
-//   it("should be able to get the account balance", async function () {
-//     const balance = await hre.run("show-balance");
-//     expect(Number(balance)).to.be.greaterThan(0);
-//   });
+    await aiPrompt.safeMint(owner.address);
+    const newTokenId = await aiPrompt.getCurrentTokenId();
+    expect(newTokenId).to.equal(1);
+  });
 
-//   it("should be able to deploy a contract", async function () {
-//     contractAddress = await hre.run("deploy-contract");
-//     expect(contractAddress).to.not.be.null;
-//   });
-
-//   it("should be able to make a contract view call", async function () {
-//     const res = await hre.run("contract-view-call", { contractAddress });
-//     expect(res).to.be.equal("initial_msg");
-//   });
-
-//   it("should be able to make a contract call", async function () {
-//     const msg = "updated_msg";
-//     await hre.run("contract-call", { contractAddress, msg });
-//     const res = await hre.run("contract-view-call", { contractAddress });
-//     expect(res).to.be.equal(msg);
-//   });
-// });
+});
