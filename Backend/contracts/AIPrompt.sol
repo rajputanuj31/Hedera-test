@@ -12,7 +12,7 @@ contract AIPrompt is ERC721 {
         uint256 duration;
         bool isOpen;
         uint256 entries;
-        uint256 [] addresses;
+        address [] addresses;
     }
     
     mapping(address=>Raffle) s_raffles;
@@ -39,13 +39,16 @@ contract AIPrompt is ERC721 {
 
     function enterRaffle(uint256 raffleId) public payable{
         address raffles_creator = s_raffleId[raffleId];
-        Raffle memory raffleDetails = s_raffles[raffles_creator];
+        Raffle storage raffleDetails = s_raffles[raffles_creator];
 
         if(msg.value < raffleDetails.amount){
             revert("Less than require amount sent");
         }
 
-        addresses.push(msg.sender);
+        address [] storage temp = raffleDetails.addresses;
+        temp.push(msg.sender);
+        raffleDetails.addresses = temp;
+        
         s_proceeds[raffles_creator] = s_proceeds[raffles_creator] + msg.value;
         raffleDetails.entries = raffleDetails.entries + 1;
 
