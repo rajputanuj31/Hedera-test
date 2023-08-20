@@ -2,13 +2,8 @@
 const bytecode = require("./bytecode")
 const {
     Client,
-    PrivateKey,
-    AccountCreateTransaction,
-    AccountBalanceQuery,
     ContractCreateFlow,
     Hbar,
-    FileCreateTransaction,
-    TransferTransaction,
     ContractExecuteTransaction,
     ContractFunctionParameters,
     TransactionRecordQuery,
