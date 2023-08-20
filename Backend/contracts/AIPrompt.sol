@@ -4,8 +4,9 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract AIPrompt is ERC721 {
-    constructor() ERC721("AI Prompt", "AIP") {}
 
+    constructor() ERC721("AI Prompt", "AIP") {}
+    
     struct Raffle{
         uint256 tokenId;
         uint256 amount;
@@ -15,13 +16,16 @@ contract AIPrompt is ERC721 {
         address [] addresses;
     }
     
-    mapping(address=>Raffle) s_raffles;
-    mapping(uint256=>address) s_raffleId;
-    mapping(address=>uint256) s_proceeds;
-    uint256 s_token = 0 ;
+    mapping(address=>Raffle) private s_raffles;
+    mapping(uint256=>address) private s_raffleId;
+    mapping(address=>uint256) private s_proceeds;
 
-    function safeMint(address to, uint256 tokenId) public {
-        _safeMint(to, tokenId);
+    uint256 raffleId = 0 ;
+    uint256 s_tokenId = 0 ;
+
+    function safeMint(address to) public {
+        _safeMint(to, s_tokenId);
+        s_tokenId = s_tokenId + 1;
     }
 
     function createRaffle(uint256 tokenId, uint256 duration, uint256 amount) public {
@@ -33,7 +37,7 @@ contract AIPrompt is ERC721 {
         newRaffle.duration = duration;
         newRaffle.amount = amount;
 
-        s_token += 1;
+        raffleId += 1;
         s_raffles[msg.sender] = newRaffle;
     }
 
@@ -52,6 +56,37 @@ contract AIPrompt is ERC721 {
         s_proceeds[raffles_creator] = s_proceeds[raffles_creator] + msg.value;
         raffleDetails.entries = raffleDetails.entries + 1;
 
+    }
+
+    function getCurrentTokenId () public view returns (uint256){
+        // Current token ID of NFT
+        return s_tokenId;
+    }
+
+    function getParticipants (uint256 _raffleId) public view returns(uint256 memory []){
+        // Should return array of participants
+        return s_raffles[ s_raffleId [ _raffleId ] ].addresses;
+    }
+
+    function particantCount (uint256 _raffleId) public view returns(uint256 ){
+        // Should return number of participants
+        return s_raffles[ s_raffleId [ _raffleId ] ].entries;
+    }
+
+
+    function raffleFee (uint256 _raffleId) public view returns(uint256 ){
+        // Should return price to enter 
+        return s_raffles[ s_raffleId [ _raffleId ] ].amount;
+    }
+    
+    function getRaffleTokenId (uint256 _raffleId) public view returns(uint256 ){
+        // Should return token Id
+        return s_raffles[ s_raffleId [ _raffleId ] ].tokenId;
+    }
+
+    function addressCreator(uint256) public view returns(uint256 ){
+        // Should return who created raffle
+        return s_raffleId [ _raffleId ] ;
     }
 
 }
