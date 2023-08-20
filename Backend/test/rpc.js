@@ -16,6 +16,7 @@ describe('AIPrompt Contract', function () {
   });
   
   it('Should retrieve current token ID', async function () {
+
     const tokenId = await aiPrompt.getCurrentTokenId();
     expect(tokenId).to.equal(0);
 
@@ -23,5 +24,46 @@ describe('AIPrompt Contract', function () {
     const newTokenId = await aiPrompt.getCurrentTokenId();
     expect(newTokenId).to.equal(1);
   });
+
+  it('Creates multiple raffles', async function(){
+
+    await aiPrompt.safeMint(owner.address);
+    await aiPrompt.safeMint(owner.address);
+
+    const newTokenId = await aiPrompt.getCurrentTokenId();
+    expect(newTokenId).to.equal(2);
+
+    await aiPrompt.createRaffle(0,100,1000);
+
+    const raffleFeeContract = await aiPrompt.raffleFee(0);
+    const getRaffleTokenIdContract = await aiPrompt.getRaffleTokenId(0);
+
+    expect(raffleFeeContract).to.equal(1000);
+    expect(getRaffleTokenIdContract).to.equal(0);
+
+    // Another raffle simultaneously
+
+    await aiPrompt.createRaffle(1,200,2000);
+
+    const raffleFeeContract_ = await aiPrompt.raffleFee(0);
+    const getRaffleTokenIdContract_ = await aiPrompt.getRaffleTokenId(0);
+
+    expect(raffleFeeContract_).to.equal(2000);
+    expect(getRaffleTokenIdContract_).to.equal(1);
+
+  });
+
+  it('People entering raffle', async function (){
+    await aiPrompt.safeMint(owner.address);
+    await aiPrompt.createRaffle(0,100,1000);
+
+    const newcontract = await aiPrompt.connect(user1);
+    await newcontract.enterRaffle(0,{value : 1500});
+
+    const count = await newcontract.getParticipants(0);
+    expect(count[0]).to.equal(user1.address);
+  });
+
+
 
 });

@@ -28,17 +28,19 @@ contract AIPrompt is ERC721 {
         s_tokenId = s_tokenId + 1;
     }
 
-    function createRaffle(uint256 tokenId, uint256 duration, uint256 amount) public {
+    function createRaffle(uint256 _tokenId, uint256 duration, uint256 amount) public {
         
         // Make sure msg.sender has NFT
         
         Raffle memory newRaffle;
-        newRaffle.tokenId = tokenId;
+        newRaffle.tokenId = _tokenId;
         newRaffle.duration = duration;
         newRaffle.amount = amount;
 
+        s_raffleId[raffleId] = msg.sender;
         raffleId += 1;
         s_raffles[msg.sender] = newRaffle;
+        
     }
 
     function enterRaffle(uint256 _raffleId) public payable{
@@ -72,7 +74,6 @@ contract AIPrompt is ERC721 {
         // Should return number of participants
         return s_raffles[ s_raffleId [ _raffleId ] ].entries;
     }
-
 
     function raffleFee (uint256 _raffleId) public view returns(uint256 ){
         // Should return price to enter 

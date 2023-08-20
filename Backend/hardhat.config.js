@@ -51,5 +51,11 @@ module.exports = {
         process.env.TESTNET_OPERATOR_PRIVATE_KEY,
       ],
     },
+    hardhat: {
+      chainId: 31337,
+    },
+    localhost: {
+      chainId: 31337,
+    },
   },
 };
