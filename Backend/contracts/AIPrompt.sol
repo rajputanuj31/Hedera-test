@@ -12,6 +12,7 @@ contract AIPrompt is ERC721 {
         uint256 duration;
         bool isOpen;
         uint256 entries;
+        uint256 [] addresses;
     }
     
     mapping(address=>Raffle) s_raffles;
@@ -43,8 +44,10 @@ contract AIPrompt is ERC721 {
         if(msg.value < raffleDetails.amount){
             revert("Less than require amount sent");
         }
-        
+
+        addresses.push(msg.sender);
         s_proceeds[raffles_creator] = s_proceeds[raffles_creator] + msg.value;
+        raffleDetails.entries = raffleDetails.entries + 1;
 
     }
 
