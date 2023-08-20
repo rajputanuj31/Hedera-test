@@ -41,8 +41,8 @@ contract AIPrompt is ERC721 {
         s_raffles[msg.sender] = newRaffle;
     }
 
-    function enterRaffle(uint256 raffleId) public payable{
-        address raffles_creator = s_raffleId[raffleId];
+    function enterRaffle(uint256 _raffleId) public payable{
+        address raffles_creator = s_raffleId[_raffleId];
         Raffle storage raffleDetails = s_raffles[raffles_creator];
 
         if(msg.value < raffleDetails.amount){
@@ -63,7 +63,7 @@ contract AIPrompt is ERC721 {
         return s_tokenId;
     }
 
-    function getParticipants (uint256 _raffleId) public view returns(uint256 memory []){
+    function getParticipants (uint256 _raffleId) public view returns(address []memory){
         // Should return array of participants
         return s_raffles[ s_raffleId [ _raffleId ] ].addresses;
     }
@@ -84,7 +84,7 @@ contract AIPrompt is ERC721 {
         return s_raffles[ s_raffleId [ _raffleId ] ].tokenId;
     }
 
-    function addressCreator(uint256) public view returns(uint256 ){
+    function addressCreator(uint256 _raffleId) public view returns(address ){
         // Should return who created raffle
         return s_raffleId [ _raffleId ] ;
     }
