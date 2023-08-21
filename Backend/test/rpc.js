@@ -20,15 +20,15 @@ describe('AIPrompt Contract', function () {
     const tokenId = await aiPrompt.getCurrentTokenId();
     expect(tokenId).to.equal(0);
 
-    await aiPrompt.safeMint(owner.address);
+    await aiPrompt.safeMint(owner.address,"ipfs");
     const newTokenId = await aiPrompt.getCurrentTokenId();
     expect(newTokenId).to.equal(1);
   });
 
   it('Creates multiple raffles', async function(){
 
-    await aiPrompt.safeMint(owner.address);
-    await aiPrompt.safeMint(owner.address);
+    await aiPrompt.safeMint(owner.address,"ipfs");
+    await aiPrompt.safeMint(owner.address,"ipfs");
 
     const newTokenId = await aiPrompt.getCurrentTokenId();
     expect(newTokenId).to.equal(2);
@@ -54,7 +54,8 @@ describe('AIPrompt Contract', function () {
   });
 
   it('People entering raffle', async function (){
-    await aiPrompt.safeMint(owner.address);
+    
+    await aiPrompt.safeMint(owner.address,"ipfs");
     await aiPrompt.createRaffle(0,100,1000);
 
     const newcontract = await aiPrompt.connect(user1);
@@ -66,14 +67,19 @@ describe('AIPrompt Contract', function () {
   });
 
   it('Fails at less amount', async function(){
-    await aiPrompt.safeMint(owner.address);
+
+    await aiPrompt.safeMint(owner.address,"ipfs");
     await aiPrompt.createRaffle(0,100,1000);
 
     const newcontract = await aiPrompt.connect(user1);
     await expect(newcontract.enterRaffle(0,{value : 100})).to.be.revertedWith("Less than require amount sent");
 
+  });
+
+  it('Fails if try to create NFT if does not own', async function (){
+    await aiPrompt.safeMint(owner.address,"ipfs");
+    const newcontract = await aiPrompt.connect(user1);
+    await expect(newcontract.createRaffle(0,100,1000)).to.be.revertedWith("Not Owner");
   })
-
-
 
 });

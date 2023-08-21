@@ -4,6 +4,8 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IPrngSystemContract.sol";
 
+error AIPrompt__NOTOPEN();
+
 contract AIPrompt is ERC721 {
     constructor() ERC721("AI Prompt", "AIP") {}
 
@@ -19,6 +21,7 @@ contract AIPrompt is ERC721 {
     mapping(address => Raffle) private s_raffles;
     mapping(uint256 => address) private s_raffleId;
     mapping(address => uint256) private s_proceeds;
+    mapping (uint256 => string) token_URI;
 
     uint256 raffleId = 0;
     uint256 s_tokenId = 0;
@@ -61,8 +64,9 @@ contract AIPrompt is ERC721 {
         return randNum;
     }
 
-    function safeMint(address to) public {
+    function safeMint(address to, string memory URI) public {
         _safeMint(to, s_tokenId);
+        token_URI[s_tokenId] = URI;
         s_tokenId = s_tokenId + 1;
     }
 
@@ -71,12 +75,16 @@ contract AIPrompt is ERC721 {
         uint256 duration,
         uint256 amount
     ) public {
-        // Make sure msg.sender has NFT
+        
+        if (ownerOf(_tokenId)!=msg.sender) {
+            revert ("Not Owner");
+        }
 
         Raffle memory newRaffle;
         newRaffle.tokenId = _tokenId;
         newRaffle.duration = duration;
         newRaffle.amount = amount;
+        newRaffle.isOpen = true;
 
         s_raffleId[raffleId] = msg.sender;
         raffleId += 1;
@@ -91,6 +99,10 @@ contract AIPrompt is ERC721 {
             revert("Less than require amount sent");
         }
 
+        if(raffleDetails.isOpen == false){
+            revert AIPrompt__NOTOPEN();
+        }
+
         address[] storage temp = raffleDetails.addresses;
         temp.push(msg.sender);
         raffleDetails.addresses = temp;
@@ -99,14 +111,16 @@ contract AIPrompt is ERC721 {
         raffleDetails.entries = raffleDetails.entries + 1;
     }
 
+    function getURI(uint256 id) public view returns (string memory){
+        return token_URI[id];
+    }
+
     function getCurrentTokenId() public view returns (uint256) {
         // Current token ID of NFT
         return s_tokenId;
     }
 
-    function getParticipants(
-        uint256 _raffleId
-    ) public view returns (address[] memory) {
+    function getParticipants(uint256 _raffleId) public view returns (address[] memory) {
         // Should return array of participants
         return s_raffles[s_raffleId[_raffleId]].addresses;
     }
@@ -129,5 +143,9 @@ contract AIPrompt is ERC721 {
     function addressCreator(uint256 _raffleId) public view returns (address) {
         // Should return who created raffle
         return s_raffleId[_raffleId];
+    }
+
+    function currentBalance() public view returns (uint256) {
+        return s_proceeds[msg.sender];
     }
 }
