@@ -49,6 +49,8 @@ module.exports = {
       //the public address for the account is derived from the private key
       accounts: [
         process.env.TESTNET_OPERATOR_PRIVATE_KEY,
+        process.env.TESTNET_OPERATOR_PRIVATE_KEY1,
+        process.env.TESTNET_OPERATOR_PRIVATE_KEY2
       ],
     },
     hardhat: {

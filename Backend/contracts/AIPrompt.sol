@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./IPrngSystemContract.sol";
 
 error AIPrompt__NOTOPEN();
+error AIPrompt__FUND();
 
 contract AIPrompt is ERC721 {
     constructor() ERC721("AI Prompt", "AIP") {}
@@ -13,10 +14,13 @@ contract AIPrompt is ERC721 {
         uint256 tokenId;
         uint256 amount;
         uint256 duration;
+        address creator;
         bool isOpen;
         uint256 entries;
         address[] addresses;
     }
+
+    uint256 hello = 0 ;
 
     mapping(address => Raffle) private s_raffles;
     mapping(uint256 => address) private s_raffleId;
@@ -44,7 +48,8 @@ contract AIPrompt is ERC721 {
      */
     function getPseudorandomNumber(
         uint32 lo,
-        uint32 hi
+        uint32 hi,
+        uint256 id
     ) external returns (uint32) {
         (bool success, bytes memory result) = PRECOMPILE_ADDRESS.call(
             abi.encodeWithSelector(
@@ -57,6 +62,10 @@ contract AIPrompt is ERC721 {
             choice := mload(add(result, 0x20))
         }
         randNum = lo + (choice % (hi - lo));
+
+        if(s_raffles[s_raffleId[id]].creator != msg.sender){
+            revert("Not authorised");
+        }
         return randNum;
     }
 
@@ -75,12 +84,14 @@ contract AIPrompt is ERC721 {
         if (ownerOf(_tokenId)!=msg.sender) {
             revert ("Not Owner");
         }
-
+        address [] memory  temp;
         Raffle memory newRaffle;
         newRaffle.tokenId = _tokenId;
         newRaffle.duration = duration;
         newRaffle.amount = amount;
         newRaffle.isOpen = true;
+        newRaffle.creator = msg.sender;
+        newRaffle.addresses = temp;
 
         // Giving rights to contract
         approve(address(this),_tokenId);
@@ -94,23 +105,9 @@ contract AIPrompt is ERC721 {
     }
 
     function enterRaffle(uint256 _raffleId) public payable {
-        address raffles_creator = s_raffleId[_raffleId];
-        Raffle storage raffleDetails = s_raffles[raffles_creator];
-
-        if (msg.value < raffleDetails.amount) {
-            revert("Less than require amount sent");
-        }
-
-        if(raffleDetails.isOpen == false){
-            revert AIPrompt__NOTOPEN();
-        }
-
-        address[] storage temp = raffleDetails.addresses;
-        temp.push(msg.sender);
-        raffleDetails.addresses = temp;
-
-        s_proceeds[raffles_creator] = s_proceeds[raffles_creator] + msg.value;
-        raffleDetails.entries = raffleDetails.entries + 1;
+        s_raffles[s_raffleId[_raffleId]].addresses.push(msg.sender);
+        s_proceeds[s_raffleId[_raffleId]] = s_proceeds[s_raffleId[_raffleId]] + msg.value;
+        s_raffles[s_raffleId[_raffleId]].entries = s_raffles[s_raffleId[_raffleId]].entries + 1;
     }
 
     function getURI(uint256 id) public view returns (string memory){
@@ -150,4 +147,12 @@ contract AIPrompt is ERC721 {
     function currentBalance() public view returns (uint256) {
         return s_proceeds[msg.sender];
     }
+
+    function he () public view returns (uint256){
+        return hello;
+    }
+
+    // WITHDRAW FUNCTION : ANUJ
+
+
 }
