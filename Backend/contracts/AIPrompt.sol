@@ -70,11 +70,7 @@ contract AIPrompt is ERC721 {
         s_tokenId = s_tokenId + 1;
     }
 
-    function createRaffle(
-        uint256 _tokenId,
-        uint256 duration,
-        uint256 amount
-    ) public {
+    function createRaffle( uint256 _tokenId, uint256 duration, uint256 amount) public {
         
         if (ownerOf(_tokenId)!=msg.sender) {
             revert ("Not Owner");
@@ -85,6 +81,12 @@ contract AIPrompt is ERC721 {
         newRaffle.duration = duration;
         newRaffle.amount = amount;
         newRaffle.isOpen = true;
+
+        // Giving rights to contract
+        approve(address(this),_tokenId);
+
+        // Transfer NFT to contract
+        transferFrom(msg.sender,address(this),_tokenId);
 
         s_raffleId[raffleId] = msg.sender;
         raffleId += 1;

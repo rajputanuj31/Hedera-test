@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+const { expect, assert } = require('chai');
 const { ethers } = require('hardhat');
 
 describe('AIPrompt Contract', function () {
@@ -54,9 +54,13 @@ describe('AIPrompt Contract', function () {
   });
 
   it('People entering raffle', async function (){
-    
+
     await aiPrompt.safeMint(owner.address,"ipfs");
+    const mintOwner = await aiPrompt.ownerOf(0);
+    assert.equal(mintOwner,owner.address);
     await aiPrompt.createRaffle(0,100,1000);
+    const newOwner = await aiPrompt.ownerOf(0);
+    assert.equal(newOwner,aiPrompt.address)
 
     const newcontract = await aiPrompt.connect(user1);
     await newcontract.enterRaffle(0,{value : 1000});
