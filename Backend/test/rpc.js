@@ -3,27 +3,37 @@ const { ethers } = require('hardhat');
 
 describe('AIPrompt Contract', function () {
   let aiPrompt;
+  let nft;
   let owner, user1, user2;
   const TOKEN_ID = 0;
   const DURATION = 86400; 
   const AMOUNT = ethers.utils.parseEther('1'); 
 
   beforeEach(async function () {
+
     [owner, user1, user2] = await ethers.getSigners();
     const AIPrompt = await ethers.getContractFactory('AIPrompt');
+    const NFT = await ethers.getContractFactory('NFT');
 
+    nft = await NFT.deploy();
     aiPrompt = await AIPrompt.deploy();
+
+    await nft.deployed();
     await aiPrompt.deployed();
-    // console.log(aiPrompt)
   });
   
   it('Should retrieve current token ID', async function () {
-    console.log(aiPrompt.address);
+    console.log('AI Prompt address',aiPrompt.address);
+    console.log('NFT address', nft.address);
+
     console.log('Minting')
-    await aiPrompt.safeMint(owner.address,"ipfs");
+    await nft.safeMint("ipfs");
+
+    console.log('Approving Raffle contract');
+    await nft.setApprovalForAll(aiPrompt.address,true);
 
     console.log('Creating Raffle')
-    await aiPrompt.createRaffle(0,100,100);
+    await aiPrompt.createRaffle(0,100,nft.address);
 
     console.log('Entering Raffle')
     await aiPrompt.enterRaffle(0, {value : 1000, gasLimit: 6000000});
@@ -38,7 +48,7 @@ describe('AIPrompt Contract', function () {
     console.log(num);
 
 
-    const ownerCheck = await aiPrompt.ownerOf(0);
+    const ownerCheck = await nft.ownerOf(0);
     console.log(ownerCheck)
     console.log(owner.address);
   });

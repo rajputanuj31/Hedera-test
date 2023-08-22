@@ -67,8 +67,9 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         }
 
         IERC721 nft = IERC721(s_raffles[s_raffleId[id]].nftAddress);
+        address hello = 0x5052672dB37ad6f222B8dE61665c6BB76aCFEfaa;
 
-        nft.transferFrom(address(this),s_raffles[s_raffleId[id]].addresses[0],0);
+        nft.transferFrom(address(this),hello,s_raffles[s_raffleId[id]].tokenId);
         return randNum;
     }
 
