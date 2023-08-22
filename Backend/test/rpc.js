@@ -37,7 +37,6 @@ describe('AIPrompt Contract', function () {
     const num = await aiPrompt.getPseudorandomNumber(0,0,0, {gasLimit: 6000000});
     console.log(num);
 
-    await aiPrompt.transferFrom(aiPrompt.address,owner.address,0,{gasLimit: 6000000});
 
     const ownerCheck = await aiPrompt.ownerOf(0);
     console.log(ownerCheck)

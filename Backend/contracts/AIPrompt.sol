@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./IPrngSystemContract.sol";
 
 error AIPrompt__NOTOPEN();
 error AIPrompt__FUND();
 
-contract AIPrompt is ERC721 {
-    constructor() ERC721("AI Prompt", "AIP") {}
+contract AIPrompt is IERC721Receiver, IPrngSystemContract {
 
     struct Raffle {
         uint256 tokenId;
         uint256 amount;
-        uint256 duration;
         address creator;
         bool isOpen;
         uint256 entries;
         address[] addresses;
+        address nftAddress;
     }
-
-    uint256 hello = 0 ;
 
     mapping(address => Raffle) private s_raffles;
     mapping(uint256 => address) private s_raffleId;
@@ -46,6 +44,7 @@ contract AIPrompt is ERC721 {
     /**
      * Returns a pseudorandom number in the range [lo, hi) using the seed generated from "getPseudorandomSeed"
      */
+
     function getPseudorandomNumber(
         uint32 lo,
         uint32 hi,
@@ -66,6 +65,10 @@ contract AIPrompt is ERC721 {
         if(s_raffles[s_raffleId[id]].creator != msg.sender){
             revert("Not authorised");
         }
+
+        IERC721 nft = IERC721(s_raffles[s_raffleId[id]].nftAddress);
+
+        nft.transferFrom(address(this),s_raffles[s_raffleId[id]].addresses[0],0);
         return randNum;
     }
 
@@ -73,31 +76,28 @@ contract AIPrompt is ERC721 {
         return randNum;
     }
 
-    function safeMint(address to, string memory URI) public {
-        _safeMint(to, s_tokenId);
-        token_URI[s_tokenId] = URI;
-        s_tokenId = s_tokenId + 1;
-    }
+    function createRaffle( uint256 _tokenId, uint256 amount, address _nftaddress) public {
 
-    function createRaffle( uint256 _tokenId, uint256 duration, uint256 amount) public {
-        
-        if (ownerOf(_tokenId)!=msg.sender) {
+        IERC721 nft = IERC721(_nftaddress);
+
+        if (nft.ownerOf(_tokenId)!=msg.sender) {
             revert ("Not Owner");
         }
+
         address [] memory  temp;
         Raffle memory newRaffle;
         newRaffle.tokenId = _tokenId;
-        newRaffle.duration = duration;
         newRaffle.amount = amount;
         newRaffle.isOpen = true;
         newRaffle.creator = msg.sender;
         newRaffle.addresses = temp;
+        newRaffle.nftAddress = _nftaddress;
 
         // Giving rights to contract
-        approve(address(this),_tokenId);
+        nft.approve(address(this),_tokenId);
 
         // Transfer NFT to contract
-        transferFrom(msg.sender,address(this),_tokenId);
+        nft.transferFrom(msg.sender,address(this),_tokenId);
 
         s_raffleId[raffleId] = msg.sender;
         raffleId += 1;
@@ -148,11 +148,9 @@ contract AIPrompt is ERC721 {
         return s_proceeds[msg.sender];
     }
 
-    function he () public view returns (uint256){
-        return hello;
-    }
-
     // WITHDRAW FUNCTION : ANUJ
 
-
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
 }
