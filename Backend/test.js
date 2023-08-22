@@ -1,7 +1,8 @@
 const {
     Client,
     Hbar,
-    TopicMessageSubmitTransaction
+    TopicMessageSubmitTransaction,
+    TopicCreateTransaction
 } = require("@hashgraph/sdk");
 require("dotenv").config();
 
@@ -10,22 +11,13 @@ async function environmentSetup() {
     const myAccountId = process.env.MY_ACCOUNT_ID;
     const myPrivateKey = process.env.MY_PRIVATE_KEY;
 
-    if (!myAccountId || !myPrivateKey) {
-        throw new Error(
-            "Environment variables MY_ACCOUNT_ID and MY_PRIVATE_KEY must be present"
-        );
-    }
-
     const client = Client.forTestnet();
-
     client.setOperator(myAccountId, myPrivateKey);
-
     client.setDefaultMaxTransactionFee(new Hbar(100));
-
     client.setMaxQueryPayment(new Hbar(50));
 
-    const topicId = "0.0.642807";
-
+    const topicId = "0.0.644582";
+    // console.log(Cl)
     // WRITING MESSAGE
 
     async function writeMessage(_message) {
@@ -44,15 +36,15 @@ async function environmentSetup() {
     }
 
     // writeMessage("Write message from function");
-    const url = "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.642807/messages";
+    const url = "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.644582/messages";
 
 
 
     async function query(){
         const  data = await (await fetch(url)).json();
-        var b = Buffer.from(data.messages[0].message, 'base64')
+        var b = Buffer.from(data.messages[0], 'base64')
         var s = b.toString();
-        console.log(s);
+        console.log(data.messages.length);
     }
     query();
 

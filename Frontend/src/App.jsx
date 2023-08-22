@@ -6,6 +6,7 @@ import React from "react";
 import "./styles/App.css";
 import Navbar from "./components/Navbar/Navbar.js";
 import Home from "./components/Home/Home";
+import Raffle from "./components/Raffles";
 
 function App() {
 	// const [walletData, setWalletData] = useState();
@@ -73,6 +74,8 @@ function App() {
 		<div className="App">
 			<Navbar/>
 			<Home/>
+			<Raffle />
+
 			{/* <MyGroup fcn={connectWallet} buttonLabel={"Connect Wallet"}  link={connectLinkSt} />
 
 			<MyGroup fcn={contractDeploy} buttonLabel={"Deploy Contract"} text={contractTextSt} link={contractLinkSt} />
