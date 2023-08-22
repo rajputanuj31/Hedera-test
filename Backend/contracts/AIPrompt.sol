@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./IPrngSystemContract.sol";
 
 error AIPrompt__NOTOPEN();
+error AIPrompt__FUND();
 
-contract AIPrompt is ERC721 {
-    constructor() ERC721("AI Prompt", "AIP") {}
+contract AIPrompt is IERC721Receiver, IPrngSystemContract {
 
     struct Raffle {
         uint256 tokenId;
         uint256 amount;
-        uint256 duration;
+        address creator;
         bool isOpen;
         uint256 entries;
         address[] addresses;
+        address nftAddress;
+        address winner;
     }
 
     mapping(address => Raffle) private s_raffles;
@@ -37,15 +40,18 @@ contract AIPrompt is ERC721 {
         );
         require(success);
         randomBytes = abi.decode(result, (bytes32));
+        // IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
+        // nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[0],s_raffles[s_raffleId[0]].tokenId);
     }
 
     /**
      * Returns a pseudorandom number in the range [lo, hi) using the seed generated from "getPseudorandomSeed"
      */
+
     function getPseudorandomNumber(
         uint32 lo,
-        uint32 hi
-    ) external returns (uint32) {
+        uint32 hi    
+    ) public returns (uint32) {
         (bool success, bytes memory result) = PRECOMPILE_ADDRESS.call(
             abi.encodeWithSelector(
                 IPrngSystemContract.getPseudorandomSeed.selector
@@ -56,37 +62,48 @@ contract AIPrompt is ERC721 {
         assembly {
             choice := mload(add(result, 0x20))
         }
+        
         randNum = lo + (choice % (hi - lo));
         return randNum;
     }
 
-    function getNumber() public view returns (uint32) {
-        return randNum;
+    function generateWinner(uint32 lo, uint32 hi, uint256 _id) public {
+        getPseudorandomNumber(lo, hi);
+        s_raffles[s_raffleId[_id]].winner = s_raffles[s_raffleId[_id]].addresses[randNum];
     }
 
-    function safeMint(address to, string memory URI) public {
-        _safeMint(to, s_tokenId);
-        token_URI[s_tokenId] = URI;
-        s_tokenId = s_tokenId + 1;
+    function winner(uint256 _id) public view returns (address){
+        return s_raffles[s_raffleId[_id]].addresses[randNum];
     }
 
-    function createRaffle( uint256 _tokenId, uint256 duration, uint256 amount) public {
-        
-        if (ownerOf(_tokenId)!=msg.sender) {
+    function winnerGetNFT(uint256 _id)public{
+        uint256  hello = uint256(randNum) ;
+        IERC721 nft = IERC721(s_raffles[s_raffleId[_id]].nftAddress);
+        nft.transferFrom(address(this),s_raffles[s_raffleId[_id]].addresses[hello],s_raffles[s_raffleId[0]].tokenId);
+    }
+
+    function createRaffle( uint256 _tokenId, uint256 amount, address _nftaddress) public {
+
+        IERC721 nft = IERC721(_nftaddress);
+
+        if (nft.ownerOf(_tokenId)!=msg.sender) {
             revert ("Not Owner");
         }
 
+        address [] memory  temp;
         Raffle memory newRaffle;
         newRaffle.tokenId = _tokenId;
-        newRaffle.duration = duration;
         newRaffle.amount = amount;
         newRaffle.isOpen = true;
+        newRaffle.creator = msg.sender;
+        newRaffle.addresses = temp;
+        newRaffle.nftAddress = _nftaddress;
 
         // Giving rights to contract
-        approve(address(this),_tokenId);
+        nft.approve(address(this),_tokenId);
 
         // Transfer NFT to contract
-        transferFrom(msg.sender,address(this),_tokenId);
+        nft.transferFrom(msg.sender,address(this),_tokenId);
 
         s_raffleId[raffleId] = msg.sender;
         raffleId += 1;
@@ -94,23 +111,9 @@ contract AIPrompt is ERC721 {
     }
 
     function enterRaffle(uint256 _raffleId) public payable {
-        address raffles_creator = s_raffleId[_raffleId];
-        Raffle storage raffleDetails = s_raffles[raffles_creator];
-
-        if (msg.value < raffleDetails.amount) {
-            revert("Less than require amount sent");
-        }
-
-        if(raffleDetails.isOpen == false){
-            revert AIPrompt__NOTOPEN();
-        }
-
-        address[] storage temp = raffleDetails.addresses;
-        temp.push(msg.sender);
-        raffleDetails.addresses = temp;
-
-        s_proceeds[raffles_creator] = s_proceeds[raffles_creator] + msg.value;
-        raffleDetails.entries = raffleDetails.entries + 1;
+        s_raffles[s_raffleId[_raffleId]].addresses.push(msg.sender);
+        s_proceeds[s_raffleId[_raffleId]] = s_proceeds[s_raffleId[_raffleId]] + msg.value;
+        s_raffles[s_raffleId[_raffleId]].entries = s_raffles[s_raffleId[_raffleId]].entries + 1;
     }
 
     function getURI(uint256 id) public view returns (string memory){
@@ -149,5 +152,11 @@ contract AIPrompt is ERC721 {
 
     function currentBalance() public view returns (uint256) {
         return s_proceeds[msg.sender];
+    }
+
+    // WITHDRAW FUNCTION : ANUJ
+
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }
