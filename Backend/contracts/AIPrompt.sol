@@ -18,6 +18,7 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         uint256 entries;
         address[] addresses;
         address nftAddress;
+        address winner;
     }
 
     mapping(address => Raffle) private s_raffles;
@@ -49,8 +50,7 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
 
     function getPseudorandomNumber(
         uint32 lo,
-        uint32 hi,
-        uint256 id
+        uint32 hi    
     ) public returns (uint32) {
         (bool success, bytes memory result) = PRECOMPILE_ADDRESS.call(
             abi.encodeWithSelector(
@@ -67,16 +67,19 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         return randNum;
     }
 
-    function helper(uint32 lo, uint32 hi, uint256 id) public {
-        getPseudorandomNumber(lo, hi , id);
+    function generateWinner(uint32 lo, uint32 hi, uint256 _id) public {
+        getPseudorandomNumber(lo, hi);
+        s_raffles[s_raffleId[_id]].winner = s_raffles[s_raffleId[_id]].addresses[randNum];
     }
 
+    function winner(uint256 _id) public view returns (address){
+        return s_raffles[s_raffleId[_id]].addresses[randNum];
+    }
 
-    function getNumber() public  returns (uint256) {
+    function winnerGetNFT(uint256 _id)public{
         uint256  hello = uint256(randNum) ;
-        IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
-        nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[hello],s_raffles[s_raffleId[0]].tokenId);
-        return hello;
+        IERC721 nft = IERC721(s_raffles[s_raffleId[_id]].nftAddress);
+        nft.transferFrom(address(this),s_raffles[s_raffleId[_id]].addresses[hello],s_raffles[s_raffleId[0]].tokenId);
     }
 
     function createRaffle( uint256 _tokenId, uint256 amount, address _nftaddress) public {

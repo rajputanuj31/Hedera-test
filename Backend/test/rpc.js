@@ -44,12 +44,16 @@ describe('AIPrompt Contract', function () {
     const index = await aiPrompt.particantCount(0);
     console.log(index);
 
-    const num = await aiPrompt.helper(0,0,0,{gasLimit: 6000000});
+    // const num = await aiPrompt.helper(0,0,{gasLimit: 6000000});
     // console.(num);
 
-    const rand = await aiPrompt.getNumber();
-    console.log(rand)
+    const rand = await aiPrompt.generateWinner(0,0,0,{gasLimit: 6000000});
+    // console.log(rand)
 
+    const winner = await aiPrompt.winner(0,{gasLimit: 6000000});
+    console.log(winner)
+
+    await aiPrompt.winnerGetNFT(0,{gasLimit: 6000000});
 
     const ownerCheck = await nft.ownerOf(0);
     console.log(ownerCheck)
