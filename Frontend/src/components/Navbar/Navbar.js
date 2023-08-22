@@ -38,7 +38,7 @@ return (
     <div className="Nav" id="Navbar">
             <h1>Project_Name</h1>
         <ul className="Nav-menu">
-                <li>Raffels</li>
+                <li>Raffles</li>
             <MyGroup fcn={connectWallet} buttonLabel={text}  link={connectLinkSt} />
         </ul>
       
