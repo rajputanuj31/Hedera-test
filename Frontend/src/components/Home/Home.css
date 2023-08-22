@@ -1,0 +1,14 @@
+.home{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.inp{
+    width: 30%;
+    padding: .7rem;
+    border-radius: 3px;
+    margin: 1rem;
+}
