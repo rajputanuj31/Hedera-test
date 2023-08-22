@@ -39,6 +39,8 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         );
         require(success);
         randomBytes = abi.decode(result, (bytes32));
+        // IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
+        // nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[0],s_raffles[s_raffleId[0]].tokenId);
     }
 
     /**
@@ -46,17 +48,35 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
      */
 
     function getPseudorandomNumber(
-        // uint32 lo,
-        // uint32 hi,
+        uint32 lo,
+        uint32 hi,
         uint256 id
-    ) public {
+    ) public returns (uint32) {
+        (bool success, bytes memory result) = PRECOMPILE_ADDRESS.call(
+            abi.encodeWithSelector(
+                IPrngSystemContract.getPseudorandomSeed.selector
+            )
+        );
+        require(success);
+        uint32 choice;
+        assembly {
+            choice := mload(add(result, 0x20))
+        }
         
-        IERC721 nft = IERC721(s_raffles[s_raffleId[id]].nftAddress);
-        nft.transferFrom(address(this),s_raffles[s_raffleId[id]].addresses[0],s_raffles[s_raffleId[id]].tokenId);
+        randNum = lo + (choice % (hi - lo));
+        return randNum;
     }
 
-    function getNumber() public view returns (uint32) {
-        return randNum;
+    function helper(uint32 lo, uint32 hi, uint256 id) public {
+        getPseudorandomNumber(lo, hi , id);
+    }
+
+
+    function getNumber() public  returns (uint256) {
+        uint256  hello = uint256(randNum) ;
+        IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
+        nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[hello],s_raffles[s_raffleId[0]].tokenId);
+        return hello;
     }
 
     function createRaffle( uint256 _tokenId, uint256 amount, address _nftaddress) public {
