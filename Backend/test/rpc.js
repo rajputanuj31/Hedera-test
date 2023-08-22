@@ -44,7 +44,7 @@ describe('AIPrompt Contract', function () {
     const index = await aiPrompt.particantCount(0);
     console.log(index);
 
-    const num = await aiPrompt.getPseudorandomNumber(0,0,0, {gasLimit: 6000000});
+    const num = await aiPrompt.getPseudorandomNumber(0,{gasLimit: 6000000});
     console.log(num);
 
 

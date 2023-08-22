@@ -46,31 +46,13 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
      */
 
     function getPseudorandomNumber(
-        uint32 lo,
-        uint32 hi,
+        // uint32 lo,
+        // uint32 hi,
         uint256 id
-    ) external returns (uint32) {
-        (bool success, bytes memory result) = PRECOMPILE_ADDRESS.call(
-            abi.encodeWithSelector(
-                IPrngSystemContract.getPseudorandomSeed.selector
-            )
-        );
-        require(success);
-        uint32 choice;
-        assembly {
-            choice := mload(add(result, 0x20))
-        }
-        randNum = lo + (choice % (hi - lo));
-
-        if(s_raffles[s_raffleId[id]].creator != msg.sender){
-            revert("Not authorised");
-        }
-
+    ) public {
+        
         IERC721 nft = IERC721(s_raffles[s_raffleId[id]].nftAddress);
-        address hello = 0x5052672dB37ad6f222B8dE61665c6BB76aCFEfaa;
-
-        nft.transferFrom(address(this),hello,s_raffles[s_raffleId[id]].tokenId);
-        return randNum;
+        nft.transferFrom(address(this),s_raffles[s_raffleId[id]].addresses[0],s_raffles[s_raffleId[id]].tokenId);
     }
 
     function getNumber() public view returns (uint32) {
