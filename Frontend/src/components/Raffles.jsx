@@ -11,6 +11,32 @@ export default function () {
     const [raffleDetails, setRaffleDetails] = useState([]);
 
     useEffect(() => {
+
+        const toggleButton = document.getElementById('toggleButton');
+        const textFields = document.getElementById('textFields');
+
+        toggleButton.addEventListener('click', () => {
+            if (toggleButton.innerHTML === '+') {
+                // toggleButton.style.transform = 'rotate(45deg)';
+                toggleButton.innerHTML = '&#10005;';
+                toggleButton.style.fontSize= '20px';
+
+                textFields.style.display = 'flex';
+                setTimeout(() => {
+                    textFields.style.opacity = '1';
+                }, 10);
+            } else {
+                // toggleButton.style.transform = 'rotate(90deg)';
+                toggleButton.innerHTML = '+';
+                textFields.style.opacity = '0';
+                toggleButton.style.fontSize= '35px';
+
+                setTimeout(() => {
+                    textFields.style.display = 'none';
+                }, 300);
+            }
+        });
+
         async function getHedera() {
             let fill = [];
             const data = await (await fetch(url)).json();
@@ -41,7 +67,17 @@ export default function () {
 
     return (
         <div>
+            <div class="container">
+                <div class="button" id="toggleButton">+</div>
+                <div class="text-fields" id="textFields">
+                    <input type="text" placeholder="Token ID" className='create-textfield' />
+                    <input type="text" placeholder="Amount" className='create-textfield' />
+                    <input type="text" placeholder="NFT Address" className='create-textfield' />
+                    <button id="submitButton" className='raffle-create'>Submit</button>
+                </div>
+            </div>
             <div className="card-container">
+
                 {raffleDetails.map((e, k) => (
                     <div className="card">
                         <img src={sampleImage} alt="Sample" className="card-image" />
