@@ -1,10 +1,11 @@
 import React from "react";
+import { BrowserRouter as Router, Route,Routes } from "react-router-dom";
 // import MyGroup from "./components/MyGroup.jsx";
 // import walletConnectFcn from "./components/hedera/walletConnect.js";
 // import contractDeployFcn from "./components/hedera/contractDeploy.js";
 // import contractExecuteFcn from "./components/hedera/contractExecute.js";
 import "./styles/App.css";
-import Navbar from "./components/Navbar/Navbar.js";
+import Navbar from "./components/Navbar/Navbar.jsx";
 import Home from "./components/Home/Home";
 import Raffle from "./components/Raffles";
 
@@ -71,18 +72,27 @@ function App() {
 	// }
 
 	return (
-		<div className="App">
-			<Navbar/>
-			<Home/>
-			<Raffle />
+		<Router>
+      <div className="App">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/raffle" element={<Raffle />} />
+        </Routes>
+      </div>
+	  </Router>
+		// <div className="App">
+		// 	<Navbar/>
+		// 	<Home/>
+		// 	<Raffle />
 
-			{/* <MyGroup fcn={connectWallet} buttonLabel={"Connect Wallet"}  link={connectLinkSt} />
+		// 	<MyGroup fcn={connectWallet} buttonLabel={"Connect Wallet"}  link={connectLinkSt} />
 
-			<MyGroup fcn={contractDeploy} buttonLabel={"Deploy Contract"} text={contractTextSt} link={contractLinkSt} />
+		// 	<MyGroup fcn={contractDeploy} buttonLabel={"Deploy Contract"} text={contractTextSt} link={contractLinkSt} />
 
-			<MyGroup fcn={contractExecute} buttonLabel={"Execute Contract (+1)"} text={executeTextSt} link={executeLinkSt} /> */}
+		// 	<MyGroup fcn={contractExecute} buttonLabel={"Execute Contract (+1)"} text={executeTextSt} link={executeLinkSt} />
 
-		</div>
+		// </div>
 	);
 }
 export default App;

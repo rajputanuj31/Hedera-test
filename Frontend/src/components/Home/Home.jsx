@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import "./Home.css"
 
-const Home = ({connectTextSt}) => {
+const Home = () => {
 	const API_KEY = "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";
-	
+
 	const [inputtext, setInputtext] = useState("")
 	const [imageurl, setImageUrl] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+
 	const handleInputChange = (event) => {
 		setInputtext(event.target.value);
 	}
+
 	const getImages = async () => {
+		setIsLoading(true);
 		const options = {
 			method: "POST",
 			headers: {
@@ -19,13 +23,14 @@ const Home = ({connectTextSt}) => {
 			body: JSON.stringify({
 				"prompt": inputtext,
 				"n": 1,
-				"size": "1024x1024"
+				"size": "512x512"
 			})
 		}
 		try {
 			const response = await fetch('https://api.openai.com/v1/images/generations', options);
 			const details = await response.json();
 			setImageUrl(details.data[0].url);
+			await setIsLoading(false);
 		} catch (error) {
 			console.error(error);
 		}
@@ -33,10 +38,14 @@ const Home = ({connectTextSt}) => {
 
 	return (
 		<div className="home">
-			<p>{connectTextSt}</p>
-			<input type="text" name="name" className="inp" value={inputtext} onChange={handleInputChange} placeholder="Enter to Generate NFT" autoComplete="off"/>
+			<input type="text" name="name" className="inp" value={inputtext} onChange={handleInputChange} placeholder="Enter to Generate NFT" autoComplete="off" />
 			<button className="cta-button" onClick={getImages}>Generate NFT</button>
-			{imageurl && <img src={imageurl} alt="" style={{ width: "300px", height: "300px" }} />}
+			{imageurl ? (
+				<img src={imageurl} alt=""/>
+			) : (
+				<p>{isLoading ? 'Please wait...' : 'Image yahan par aayegi'}</p>
+			)}
+
 		</div>
 	);
 }

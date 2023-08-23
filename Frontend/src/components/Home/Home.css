@@ -12,3 +12,13 @@
     border-radius: 3px;
     margin: 1rem;
 }
+.home p{
+    font-size: 30px;
+    text-align: center;
+}
+.home img{
+    margin-top: 2rem;
+    border-radius: 30px;
+    width: 350px;
+    height: 350px;
+}
