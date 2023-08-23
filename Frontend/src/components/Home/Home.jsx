@@ -34,7 +34,7 @@ const Home = ({connectTextSt}) => {
 	return (
 		<div className="home">
 			<p>{connectTextSt}</p>
-			<input type="text" name="name" className="inp" value={inputtext} onChange={handleInputChange} placeholder="Enter to Generate NFT"/>
+			<input type="text" name="name" className="inp" value={inputtext} onChange={handleInputChange} placeholder="Enter to Generate NFT" autoComplete="off"/>
 			<button className="cta-button" onClick={getImages}>Generate NFT</button>
 			{imageurl && <img src={imageurl} alt="" style={{ width: "300px", height: "300px" }} />}
 		</div>

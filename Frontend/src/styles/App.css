@@ -1,5 +1,83 @@
-body{
+body {
 	margin: 0;
 	padding: 0;
 	background-color: black;
+}
+
+.card {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	margin: 30px;
+	width: 20%;
+	height: 400px;
+	background-color: #202020;
+	color: #ecf0f1;
+	border-radius: 8px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.card:hover {
+	background-color: #242424;
+	cursor: pointer;
+	transition: ease-in;
+	transition: 10ms;
+}
+
+.card-image {
+	width: 90%;
+	height: 50%;
+	border-radius: 5%;
+	margin-bottom: 15px;
+	object-fit: cover;
+}
+
+.card-title {
+	font-size: 1.5rem;
+	margin-bottom: 10px;
+}
+
+.card-content {
+	font-size: 1rem;
+	text-align: center;
+	margin-bottom: 15px;
+}
+
+.card-button {
+	background-color: #3498db;
+	color: #ecf0f1;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 12px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.card-button:hover {
+	background-color: #2980b9;
+}
+
+.price-wrap {
+	display: flex;
+}
+
+.hedera-image {
+	margin-right: 5px;
+	margin-top: 24px;
+	border-radius: 100%;
+	width: 20%;
+	height: 30%;
+}
+
+.token_id {
+	font-size: 20px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.card-container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 }
