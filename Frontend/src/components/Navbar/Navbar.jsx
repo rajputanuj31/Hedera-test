@@ -17,6 +17,7 @@ const Navbar = () => {
 	async function connectWallet() {
 		if (account !== undefined) {
 			setConnectTextSt(`🔌 Account ${account} already connected ⚡ ✅`);
+			setText("Connected");
 		} else {
 			const wData = await walletConnectFcn();
 
@@ -25,7 +26,7 @@ const Navbar = () => {
 			if (newAccount !== undefined) {
 				setConnectTextSt(`🔌 Account ${newAccount} connected ⚡ ✅`);
 				setConnectLinkSt(`https://hashscan.io/${newNetwork}/account/${newAccount}`);
-
+				
 				setWalletData(wData);
 				setAccount(newAccount);
 				setNetwork(newNetwork);

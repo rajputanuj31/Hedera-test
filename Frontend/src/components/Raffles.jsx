@@ -3,7 +3,7 @@ import Cards from './Cards'
 import { client, url, topicId } from './helper'
 import { useEffect, useState } from 'react';
 import { Buffer } from 'buffer';
-import sampleImage from './sample.png'; // Replace with the actual path to your image
+import sampleImage from './sample.png'; 
 import hederaImage from './hedera.png';
 
 export default function () {
