@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@hashgraph/sdk": "^2.32.0",
-    "@pinata/sdk": "^2.1.0"
-  }
-}
