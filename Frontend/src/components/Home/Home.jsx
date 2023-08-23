@@ -3,8 +3,8 @@ import "./Home.css"
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 const FormData = require("form-data");
-const JWT = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJkM2IyYTM0NS05YTNjLTRhYTYtYmE3ZC04YjA1YzRjZDg2MTIiLCJlbWFpbCI6InJhanB1dGFudWowNDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjY3MTk4ODQzOWQwMzRkYTI3ZDc0Iiwic2NvcGVkS2V5U2VjcmV0IjoiODU2NmM1NGEyYTVmZjk5YTUyMjBhYmJlN2NmMmQ4NmQ3NDM2OGJiNzIxYjg0MmI2ZjMzZTRjNTIxYjliZGNmMCIsImlhdCI6MTY5MjY5MzUwMH0.v6OpQvIiZImDDW_w0p08QQLfpKaO_bhjhBYIDBI2zIc`
-
+const API_TOKEN = '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'
+const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI0MjQyZTQzYi0zODNiLTRhYjUtYWE1NC04YTc1MzIzYTY4NDQiLCJlbWFpbCI6ImFzaHV0b3NoMjZqaGFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImI2NzI4ZDNmNWRjNjhjMzRhNWY4Iiwic2NvcGVkS2V5U2VjcmV0IjoiZGM3OTJkYjZhNzVkOTI5Y2MyNDllOGZkZDE2MGFhZDI3OGQwMmI1MmJmY2Y2OTQ1NTM4NDM4MjJkMjBiOTQwOSIsImlhdCI6MTY5MjgwNzQ2M30.c4mAp57G4DXIOvuMnYCtheJl6oO2MXMqJse49KSrXYo';
 
 const Home = () => {
 	const API_KEY = "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";
@@ -12,6 +12,7 @@ const Home = () => {
 	const [inputtext, setInputtext] = useState("")
 	const [imageurl, setImageUrl] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [hash,setHash] = useState("");
 
 	const handleInputChange = (event) => {
 		setInputtext(event.target.value);
@@ -44,39 +45,49 @@ const Home = () => {
 
 
 	async function hello() {
-		const sourceUrl = "https://bellard.org/bpg/2.png";
-		fetch(sourceUrl)
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('HTTP Error!');
-				}
-				return response.blob();
-			})
-			.then(blobData => {
-				console.log('Image as Blob: ', blobData);
-				const formData = new FormData();
-				formData.append('file', blobData);
-				const pinataMetadata = JSON.stringify({
-					name: 'IMAGE',
-				});
-				formData.append('pinataMetadata', pinataMetadata);
-				const pinataOptions = JSON.stringify({
-					cidVersion: 0,
-				})
-				formData.append('pinataOptions', pinataOptions);
-				async function helper() {
-					const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
-						maxBodyLength: "Infinity",
-						headers: {
-							'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-							'Authorization': `Bearer ${JWT}`
-						}
-					});
-					console.log(res.data);
-				}
-				helper();
-			})
-	
+		const input = inputtext;
+		const response = await fetch(
+			"https://api-inference.huggingface.co/models/prompthero/openjourney",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${API_TOKEN}`,
+				},
+				body: JSON.stringify({ inputs: input }),
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error("Failed to generate image");
+		}
+
+		const blobData = await response.blob();
+		console.log(blobData);
+
+		const formData = new FormData();
+		formData.append('file', blobData);
+		const pinataMetadata = JSON.stringify({
+			name: 'IMAGE',
+		});
+		formData.append('pinataMetadata', pinataMetadata);
+		const pinataOptions = JSON.stringify({
+			cidVersion: 0,
+		})
+		formData.append('pinataOptions', pinataOptions);
+
+		const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+			maxBodyLength: "Infinity",
+			headers: {
+				'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+				'Authorization': `Bearer ${JWT}`
+			}
+		});
+		setHash(res.data.IpfsHash);
+		console.log(res.data.IpfsHash);
+
+
+
 	}
 
 
@@ -85,7 +96,7 @@ const Home = () => {
 			<input type="text" name="name" className="inp" value={inputtext} onChange={handleInputChange} placeholder="Enter to Generate NFT" autoComplete="off" />
 			<button className="cta-button" onClick={hello}>Pinata</button>
 			{imageurl ? (
-				<img src={imageurl} alt=""/>
+				<img src={imageurl} alt="" />
 			) : (
 				<p>{isLoading ? 'Please wait...' : 'Image yahan par aayegi'}</p>
 			)}
