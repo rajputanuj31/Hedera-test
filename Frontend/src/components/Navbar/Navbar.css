@@ -13,19 +13,17 @@
     backdrop-filter: blur(10px);
     padding-bottom: 3rem;
     color: white;
-}
-.Nav h1{
-    font-family: "Mrs Saint Delafield";
-    font-size: 3rem;
-    font-weight: 400;
-    margin-left: 90px;
+    background-color: rgb(28, 28, 28);
 }
 
+
 .Nav-menu {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: flex;
     list-style-type: none;
     align-items: center;
     margin-right: 1rem;
+    margin-top: 75px;
 }
 
 .Nav-menu a:-webkit-any-link {
@@ -36,6 +34,7 @@
     font-size: 35px;
 }
 .cta-button {
+    margin-left: 10px;
     display: inline-block;
     padding: 12px 24px;
     font-size: 16px;
@@ -103,4 +102,9 @@
         font-size: 25px;
         padding: 0 10px;
     }
+    
+}
+.navIMG{
+    margin-top: 45px;
+    width: 25%;
 }
