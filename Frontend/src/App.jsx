@@ -6,8 +6,17 @@ import contractDeployFcn from "./components/hedera/contractDeploy.js";
 import contractExecuteFcn from "./components/hedera/contractExecute.js";
 import "./styles/App.css";
 import Navbar from "./components/Navbar/Navbar.jsx";
+import NFTabi from "./contracts/NFTabi.js";
+import NFTbytecode from "./contracts/NFTbytecode.js";
+import AIabi from "./contracts/AIabi.js";
+import AIbytecode from "./contracts/AIbytecode.js";
 import Home from "./components/Home/Home";
 import Raffle from "./components/Raffles";
+import { ethers } from "ethers";
+
+
+const NFTaddress = '0xb39C1Ae40746F96be59d11C42e26a24EbdA154Ce';
+const AIaddress = '0x30CA0bb56d58c01E702B1b49895d5cB5249F76f1';
 
 function App() {
 	const [walletData, setWalletData] = useState();
@@ -71,6 +80,28 @@ function App() {
 		}
 	}
 
+	async function mintNFT() {
+		
+		const provider = walletData[1];
+		const signer = provider.getSigner();
+
+		let txHash;
+		try {
+			console.log('Minting')
+
+			const gasLimit = 600000;
+			const NFTcontract = new ethers.Contract(NFTaddress, NFTabi, signer);
+			const mintTx = await NFTcontract.safeMint('ipfs',{ gasLimit: gasLimit });
+			const mintRx = await mintTx.wait();
+			txHash = mintRx.transactionHash;
+
+			// CHECK SMART CONTRACT STATE AGAIN
+			console.log(`- Contract executed. Transaction hash: \n${txHash} ✅`);
+		} catch (executeError) {
+			console.log(`- ${executeError.message.toString()}`);
+		}
+	}
+
 	return (
 		<Router>
 			<div className="App">
@@ -82,6 +113,7 @@ function App() {
 				<MyGroup fcn={connectWallet} buttonLabel={"Connect Wallet"} link={connectLinkSt} />
 				<MyGroup fcn={contractDeploy} buttonLabel={"Deploy Contract"} text={contractTextSt} link={contractLinkSt} />
 				<MyGroup fcn={contractExecute} buttonLabel={"Execute Contract (+1)"} text={executeTextSt} link={executeLinkSt} />
+				<button onClick={mintNFT}>MINT NFT</button>
 			</div>
 		</Router>
 	);
