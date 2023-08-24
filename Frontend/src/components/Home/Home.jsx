@@ -15,7 +15,7 @@ const Home = (props) => {
 					</button>
 				</div>
 			) : (
-				<p>{props.load ? 'Please wait...' : 'Image yahan par aayegi'}</p>
+				<p>{props.load ? 'Please wait...' : ''}</p>
 			)}
 		</div>
 	);

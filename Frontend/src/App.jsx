@@ -30,6 +30,7 @@ function App() {
 	const [connectLinkSt, setConnectLinkSt] = useState("");
 	const [contractLinkSt, setContractLinkSt] = useState();
 	const [executeLinkSt, setExecuteLinkSt] = useState();
+	const [walletText, setWalletText] = useState('Connect Wallet');
 	const API_KEY = "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";
 
 	const [inputtext, setInputtext] = useState("")
@@ -87,14 +88,14 @@ function App() {
 
 	async function connectWallet() {
 		if (account !== undefined) {
-			// setConnectTextSt(`🔌 Account ${account} already connected ⚡ ✅`);
+			setWalletText('Connected')
 		} else {
 			const wData = await walletConnectFcn();
 
 			let newAccount = wData[0];
 			let newNetwork = wData[2];
 			if (newAccount !== undefined) {
-				// setConnectTextSt(`🔌 Account ${newAccount} connected ⚡ ✅`);
+				setWalletText('Connected')
 				setConnectLinkSt(`https://hashscan.io/${newNetwork}/account/${newAccount}`);
 
 				setWalletData(wData);
@@ -156,12 +157,13 @@ function App() {
 		} catch (executeError) {
 			console.log(`- ${executeError.message.toString()}`);
 		}
+		// yahan
 	}
 
 	return (
 		<Router>
 			<div className="App">
-				<Navbar fcn={connectWallet} buttonLabel={"Connect Wallet"} />
+				<Navbar fcn={connectWallet} buttonLabel={walletText} />
 				<Routes>
 					<Route path="/" element={<Home mintfcn={mintNFT} hellofcn={hello} inptxt={inputtext} fcn3={handleInputChange} image={imageurl} load={isLoading}/>} />
 					<Route path="/raffle" element={<Raffle />} />
