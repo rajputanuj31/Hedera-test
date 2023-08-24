@@ -44,7 +44,7 @@ const Navbar = () => {
 					<Link to="/">Home</Link>
 				</li>
 				<li>
-					<Link to="/raffle">Raffles</Link>
+					<Link to="/raffle">Raffle</Link>
 				</li>
 				<MyGroup fcn={connectWallet} buttonLabel={text} link={connectLinkSt} />
 			</ul>
