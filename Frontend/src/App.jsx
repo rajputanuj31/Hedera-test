@@ -97,7 +97,7 @@ function App() {
 			if (newAccount !== undefined) {
 				setWalletText('Connected')
 				setConnectLinkSt(`https://hashscan.io/${newNetwork}/account/${newAccount}`);
-
+				
 				setWalletData(wData);
 				setAccount(newAccount);
 				setNetwork(newNetwork);
@@ -118,20 +118,6 @@ function App() {
 	// 			setContractTextSt(`Contract ${cAddress} deployed ✅`);
 	// 			setExecuteTextSt(``);
 	// 			setContractLinkSt(`https://hashscan.io/${network}/address/${cAddress}`);
-	// 		}
-	// 	}
-	// }
-
-	// async function contractExecute() {
-	// 	if (contractAddress === undefined) {
-	// 		setExecuteTextSt("🛑 Deploy a contract first! 🛑");
-	// 	} else {
-	// 		const [txHash, finalCount] = await contractExecuteFcn(walletData, contractAddress);
-
-	// 		if (txHash === undefined || finalCount === undefined) {
-	// 		} else {
-	// 			setExecuteTextSt(`Count is: ${finalCount} | Transaction hash: ${txHash} ✅`);
-	// 			setExecuteLinkSt(`https://hashscan.io/${network}/tx/${txHash}`);
 	// 		}
 	// 	}
 	// }
