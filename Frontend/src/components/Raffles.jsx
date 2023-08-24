@@ -81,6 +81,17 @@ export default function (props) {
         walletData();
     }, [])
 
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+    const handleButtonClick = (index) => {
+        setIsPopupVisible(true);
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupVisible(false);
+    };
+
+
     async function handleSubmit() {
         const provider = walletData[1];
         const signer = provider.getSigner();
@@ -89,10 +100,10 @@ export default function (props) {
         try {
 
 
-            const NFTcontract = new ethers.Contract(NFTaddressInput,NFTabi,signer);
-            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress,true);
+            const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
+            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
             const approveRx = await createApproveTx.wait();
-            
+
             console.log(approveRx)
 
             const gasLimit = 600000;
@@ -136,7 +147,16 @@ export default function (props) {
                         <p className="card-owner">
                             Created by: {(e.Creator).slice(0, 5)}...{(e.Creator).slice(-4)}
                         </p>
-                        <button className="card-button">Enter Raffle</button>
+                        <button className="card-button" onClick={() => handleButtonClick(k)}>Enter Raffle</button>
+                        {isPopupVisible && (
+                            <div className="popup-overlay">
+                                <div className="popup-content">
+                                    {/* Popup content */}
+                                    <h2>Blurred Popup</h2>
+                                    <p>This is a blurred popup.</p>
+                                    <button className="popup-close-button" onClick={handleClosePopup}>&times;</button>
+                                </div>
+                            </div>)}
                     </div>
                 )
                 )}
