@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import MyGroup from "../MyGroup";
 import walletConnectFcn from "../hedera/walletConnect";
 import { Link } from "react-router-dom";
+import NavImg from '../../assets/logo.png'
 
 const Navbar = () => {
 	const [walletData, setWalletData] = useState();
@@ -38,7 +39,7 @@ const Navbar = () => {
 
 	return (
 		<div className="Nav" id="Navbar">
-			<h1>Project_Name</h1>
+			<img src = {NavImg} className="navIMG"/>
 			<ul className="Nav-menu">
 				<li>
 					<Link to="/">Home</Link>
