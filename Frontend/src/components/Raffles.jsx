@@ -1,7 +1,6 @@
 import { client, url, topicId } from './helper'
 import { ethers } from "ethers";
 import { useEffect, useState } from 'react';
-
 import { Buffer } from 'buffer';
 import sampleImage from './sample.png';
 import AIabi from "../contracts/AIabi.js";
