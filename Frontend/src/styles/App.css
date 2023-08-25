@@ -32,6 +32,7 @@ body {
 	border-radius: 5%;
 	margin-bottom: 15px;
 	object-fit: cover;
+	
 }
 
 .card-title {
@@ -62,6 +63,27 @@ body {
 }
 
 .cta-button:hover {
+	background: linear-gradient(135deg, #005fbf, #00a2e6);
+	transform: scale(1.05);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.enter{
+	display: inline-block;
+	padding: 12px 24px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #fff;
+	background: linear-gradient(135deg, #0074e4, #00b2ff);
+	border: none;
+	border-radius: 30px;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+	text-align: center;
+	text-decoration: none;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.enter:hover{
 	background: linear-gradient(135deg, #005fbf, #00a2e6);
 	transform: scale(1.05);
 	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
@@ -177,6 +199,8 @@ body {
 	position: relative;
 	width: 80%;
 	height: 65%;
+	display: flex;
+	cursor:auto;
 }
 
 .popup-close-button {
@@ -191,4 +215,13 @@ body {
 	width: 10px;
 	height: 10px;
 	font-size: 30px;
+}
+
+.popup-image{
+	width: 30%;
+	height: 100%;
+
+}
+.popup-info{
+	margin-left: 20px;
 }

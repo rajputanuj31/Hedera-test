@@ -16,7 +16,8 @@ export default function (props) {
     const [walletData, setWalletData] = useState([]);
     const [tokenID, setTokenID] = useState('');
     const [amount, setAmount] = useState('');
-    const [NFTaddressInput, setNFTaddressInput] = useState('')
+    const [NFTaddressInput, setNFTaddressInput] = useState('');
+    const [particpation, setParticipation] = useState(false);
 
     useEffect(() => {
 
@@ -46,6 +47,9 @@ export default function (props) {
         });
 
         async function getHedera() {
+
+            
+
             let fill = [];
             const data = await (await fetch(url)).json();
 
@@ -76,21 +80,97 @@ export default function (props) {
             const wData = await walletConnectFcn();
             console.log(wData)
             setWalletData(wData);
+            const provider = wData[1];
+            const signer = provider.getSigner();
+            console.log(signer)
+            const gasLimit = 600000;
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            const createTx = await AIcontract.particantCount(0);
+            console.log('S')
+
+            const participantsArr = await AIcontract.getParticipants(0);
+            console.log(participantsArr);
+            if(participantsArr.includes(walletData[0])){
+                console.log('Founds');
+            }
+            else{
+                console.log('Not')
+            }
+            
+            console.log(createTx)
+            console.log(activePopupIndex)
+            setParticipants(createTx.toString())
         }
 
         walletData();
     }, [])
 
+    async function BC (){
+        const wData = await walletConnectFcn();
+            console.log(wData)
+            setWalletData(wData);
+            const provider = wData[1];
+            const signer = provider.getSigner();
+            console.log(signer)
+            const gasLimit = 600000;
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            const createTx = await AIcontract.particantCount(0);
+            console.log('S')
+
+            const participantsArr = await AIcontract.getParticipants(0);
+            console.log(participantsArr);
+            if(participantsArr.includes(walletData[0])){
+                console.log('Founds');
+            }
+            else{
+                console.log('Not')
+            }
+            
+            console.log(createTx)
+            console.log(activePopupIndex)
+            setParticipants(createTx.toString())
+        
+    }
+
     const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [activePopupIndex, setActivePopupIndex] = useState(null);
+    const [participants, setParticipants] = useState('');
 
     const handleButtonClick = (index) => {
-        setIsPopupVisible(true);
+        setActivePopupIndex(index);
     };
 
     const handleClosePopup = () => {
-        setIsPopupVisible(false);
+        setActivePopupIndex(null);
     };
+    
+    useEffect(() => {
+        async function helper() {
+            const provider = walletData[1];
+            const signer = provider.getSigner();
+            console.log(signer)
+            const gasLimit = 600000;
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            const createTx = await AIcontract.particantCount(activePopupIndex);
 
+            const participantsArr = await AIcontract.getParticipants(0);
+            console.log(participantsArr);
+            if(participantsArr.includes(walletData[0])){
+                console.log('Founds');
+            }
+            else{
+                console.log('Not')
+            }
+            
+            console.log(createTx)
+            console.log(activePopupIndex)
+            setParticipants(createTx.toString())
+        }
+        if (activePopupIndex != null) {
+            helper();
+        }
+
+    }, [activePopupIndex])
 
     async function handleSubmit() {
         const provider = walletData[1];
@@ -102,7 +182,7 @@ export default function (props) {
 
             const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
             const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
-            const approveRx = await createApproveTx.wait();
+            const approveRx = await createApproveTx.wait()
 
             console.log(approveRx)
 
@@ -120,9 +200,13 @@ export default function (props) {
             console.log(`- ${executeError}`);
         }
     }
+    useEffect(() => {
+        console.log(participants)
+    }, [participants])
 
     return (
         <div>
+            <button onClick={BC}> MADARCHOD</button>
             <div class="container">
                 <div class="button" id="toggleButton">+</div>
                 <div class="text-fields" id="textFields">
@@ -147,16 +231,24 @@ export default function (props) {
                         <p className="card-owner">
                             Created by: {(e.Creator).slice(0, 5)}...{(e.Creator).slice(-4)}
                         </p>
-                        <button className="card-button" onClick={() => handleButtonClick(k)}>Enter Raffle</button>
-                        {isPopupVisible && (
+                        {activePopupIndex === k && (
                             <div className="popup-overlay">
                                 <div className="popup-content">
-                                    {/* Popup content */}
-                                    <h2>Blurred Popup</h2>
-                                    <p>This is a blurred popup.</p>
+                                    <img src={sampleImage} className='popup-image' />
+                                    <div className='popup-info'>
+                                        <h2>Token Id: #{e.TokenId}</h2>
+                                        <p>Created by: {(e.Creator)}</p>
+                                        <p>Total Participants : {participants}</p>
+                                        <p>Price to enter the raffle : {e.Amount} HBAR</p>
+
+                                        <button className='enter' >Enter Raffle</button>
+                                    </div>
                                     <button className="popup-close-button" onClick={handleClosePopup}>&times;</button>
                                 </div>
-                            </div>)}
+                            </div>
+                        )}
+                        <button className="card-button" onClick={() => handleButtonClick(k)}>Enter Raffle</button>
+
                     </div>
                 )
                 )}
