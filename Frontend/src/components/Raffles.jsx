@@ -10,7 +10,7 @@ import walletConnectFcn from "../components/hedera/walletConnect";
 const AIaddress = '0x30CA0bb56d58c01E702B1b49895d5cB5249F76f1';
 const NFTaddress = '0xb39C1Ae40746F96be59d11C42e26a24EbdA154Ce';
 
-export default function (props) {
+export default function () {
 
     const [raffleDetails, setRaffleDetails] = useState([]);
     const [walletData, setWalletData] = useState([]);
@@ -48,8 +48,6 @@ export default function (props) {
 
         async function getHedera() {
 
-            
-
             let fill = [];
             const data = await (await fetch(url)).json();
 
@@ -86,7 +84,6 @@ export default function (props) {
             const gasLimit = 600000;
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
             const createTx = await AIcontract.particantCount(0);
-            console.log('S')
 
             const participantsArr = await AIcontract.getParticipants(0);
             console.log(participantsArr);
@@ -105,33 +102,6 @@ export default function (props) {
         walletData();
     }, [])
 
-    async function BC (){
-        const wData = await walletConnectFcn();
-            console.log(wData)
-            setWalletData(wData);
-            const provider = wData[1];
-            const signer = provider.getSigner();
-            console.log(signer)
-            const gasLimit = 600000;
-            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
-            const createTx = await AIcontract.particantCount(0);
-            console.log('S')
-
-            const participantsArr = await AIcontract.getParticipants(0);
-            console.log(participantsArr);
-            if(participantsArr.includes(walletData[0])){
-                console.log('Founds');
-            }
-            else{
-                console.log('Not')
-            }
-            
-            console.log(createTx)
-            console.log(activePopupIndex)
-            setParticipants(createTx.toString())
-        
-    }
-
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [activePopupIndex, setActivePopupIndex] = useState(null);
     const [participants, setParticipants] = useState('');
@@ -143,34 +113,6 @@ export default function (props) {
     const handleClosePopup = () => {
         setActivePopupIndex(null);
     };
-    
-    useEffect(() => {
-        async function helper() {
-            const provider = walletData[1];
-            const signer = provider.getSigner();
-            console.log(signer)
-            const gasLimit = 600000;
-            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
-            const createTx = await AIcontract.particantCount(activePopupIndex);
-
-            const participantsArr = await AIcontract.getParticipants(0);
-            console.log(participantsArr);
-            if(participantsArr.includes(walletData[0])){
-                console.log('Founds');
-            }
-            else{
-                console.log('Not')
-            }
-            
-            console.log(createTx)
-            console.log(activePopupIndex)
-            setParticipants(createTx.toString())
-        }
-        if (activePopupIndex != null) {
-            helper();
-        }
-
-    }, [activePopupIndex])
 
     async function handleSubmit() {
         const provider = walletData[1];
@@ -200,13 +142,10 @@ export default function (props) {
             console.log(`- ${executeError}`);
         }
     }
-    useEffect(() => {
-        console.log(participants)
-    }, [participants])
+
 
     return (
         <div>
-            <button onClick={BC}> MADARCHOD</button>
             <div class="container">
                 <div class="button" id="toggleButton">+</div>
                 <div class="text-fields" id="textFields">
