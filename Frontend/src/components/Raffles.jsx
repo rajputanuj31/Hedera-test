@@ -1,4 +1,5 @@
 import { client, url, topicId } from './helper'
+import { TopicMessageSubmitTransaction } from '@hashgraph/sdk';
 import { ethers } from "ethers";
 import { useEffect, useState } from 'react';
 import { Buffer } from 'buffer';
@@ -7,18 +8,20 @@ import AIabi from "../contracts/AIabi.js";
 import NFTabi from '../contracts/NFTabi'
 import hederaImage from './hedera.png';
 import walletConnectFcn from "../components/hedera/walletConnect";
-const AIaddress = '0x30CA0bb56d58c01E702B1b49895d5cB5249F76f1';
-const NFTaddress = '0xb39C1Ae40746F96be59d11C42e26a24EbdA154Ce';
+const NFTaddress = '0x8d7BFbDF387C41FD24D289f5a204cb5b30242263';
+const AIaddress = '0xA409A86BEBa395e3210ADb95bD3dBEd92Dad74d5';
 
 export default function () {
 
     const [raffleDetails, setRaffleDetails] = useState([]);
     const [walletData, setWalletData] = useState([]);
+    const [particpation, setParticipation] = useState(false);
+
     const [tokenID, setTokenID] = useState('');
     const [amount, setAmount] = useState('');
     const [NFTaddressInput, setNFTaddressInput] = useState('');
     const [winner, setWinner] = useState('Not Decided');
-    const [particpation, setParticipation] = useState(false);
+    const [ipfsHash, setIPFShash] = useState('');
 
     useEffect(() => {
 
@@ -27,7 +30,6 @@ export default function () {
 
         toggleButton.addEventListener('click', () => {
             if (toggleButton.innerHTML === '+') {
-                // toggleButton.style.transform = 'rotate(45deg)';
                 toggleButton.innerHTML = '&#10005;';
                 toggleButton.style.fontSize = '20px';
 
@@ -36,7 +38,6 @@ export default function () {
                     textFields.style.opacity = '1';
                 }, 10);
             } else {
-                // toggleButton.style.transform = 'rotate(90deg)';
                 toggleButton.innerHTML = '+';
                 textFields.style.opacity = '0';
                 toggleButton.style.fontSize = '35px';
@@ -51,16 +52,19 @@ export default function () {
 
             let fill = [];
             const data = await (await fetch(url)).json();
-
+            
             for (let i = 0; i < data.messages.length; i++) {
 
                 var b = Buffer.from(data.messages[i].message, 'base64')
                 var inputString = b.toString();
-
+                console.log(inputString)
                 const pairs = inputString.split(',');
                 const dataObject = {};
                 for (const pair of pairs) {
-                    const [key, value] = pair.split(':');
+                    let [key, value] = pair.split(':');
+                    if(key=='amount'){
+                        value = ethers.utils.formatEther(value)
+                    }
                     dataObject[key] = value;
                 }
                 const formattedObject = {};
@@ -71,18 +75,16 @@ export default function () {
                 fill.push(formattedObject)
             }
             setRaffleDetails(fill);
-            console.log(fill)
         }
         getHedera();
 
         async function walletData() {
+
             const wData = await walletConnectFcn();
             console.log(wData)
             setWalletData(wData);
             const provider = wData[1];
             const signer = provider.getSigner();
-            console.log(signer)
-            const gasLimit = 600000;
 
         }
 
@@ -102,8 +104,24 @@ export default function () {
     };
 
     async function handleSubmit() {
+
         const provider = walletData[1];
         const signer = provider.getSigner();
+
+        const topicid = '0.0.1061015';
+
+        const message = `current:open,tokenId:${tokenID},amount:${amount},creator:${walletData[0]},image:${ipfsHash}`
+        console.log(message);
+
+        let sendResponse = await new TopicMessageSubmitTransaction({
+            topicId: topicid, 
+            message: message,
+        }).execute(client);
+        
+        const getReceipt = await sendResponse.getReceipt(client);
+        
+        const transactionStatus = getReceipt.status
+        console.log("The message transaction status " + transactionStatus.toString())
 
         let txHash;
         try {
@@ -158,7 +176,6 @@ export default function () {
             const mintRx = await createTx.wait();
             console.log('Generated');
 
-
             console.log(mintRx);
 
         } catch (error) {
@@ -195,32 +212,43 @@ export default function () {
     }
     useEffect(() => {
         async function hello() {
-            
+
             if (activePopupIndex != null) {
                 const provider = walletData[1];
                 const signer = provider.getSigner();
-
+                console.log(activePopupIndex)
                 const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
                 const createTx = await AIcontract.particantCount(parseInt(activePopupIndex))
 
                 const participantsArr = await AIcontract.getParticipants(parseInt(activePopupIndex));
                 console.log(participantsArr);
-
-                const winner = await AIcontract.winner(parseInt(activePopupIndex));
-
+                let winner;
+                // console.log(createTx)
+                if((createTx.toString()!=0)){
+                    winner = await AIcontract.winner(parseInt(activePopupIndex));
+                }
+                
                 if (participantsArr.includes(walletData[0])) {
+                    console.log('S')
                     setParticipation(true);
                 }
                 else {
+                    console.log('A')
                     setParticipation(false);
                 }
 
                 console.log(createTx)
                 console.log(activePopupIndex)
                 setParticipants(createTx.toString())
-                setWinner(winner.toString())
+                if(createTx.toString()==0){
+                    setWinner('Not Decided')
+                }
+                else{
+                    setWinner(winner.toString())
+                }
+                
             }
-        
+
         }
 
         hello()
@@ -233,6 +261,7 @@ export default function () {
                     <input type="text" placeholder="Token ID" className='create-textfield' onChange={((e) => { setTokenID(e.target.value) })} />
                     <input type="text" placeholder="Amount" className='create-textfield' onChange={((e) => { setAmount(e.target.value) })} />
                     <input type="text" placeholder="NFT Address" className='create-textfield' onChange={((e) => { setNFTaddressInput(e.target.value) })} />
+                    <input type="text" placeholder="NFT Address" className='create-textfield' onChange={((e) => { setIPFShash(e.target.value) })} />
                     <button id="submitButton" className='raffle-create' onClick={handleSubmit}>Submit</button>
                 </div>
             </div>
@@ -261,7 +290,7 @@ export default function () {
                                         <p>Total Participants : {participants}</p>
                                         <p>Price to enter the raffle : {e.Amount} HBAR</p>
                                         <p>Winner : {winner}</p>
-                                        {particpation && <button className='enter' id='enterRaff' onClick={() => enterRaffle(k, e.Amount)}>Enter Raffle</button>}
+                                        {!particpation && <button className='enter' id='enterRaff' onClick={() => enterRaffle(k, e.Amount)}>Enter Raffle</button>}
                                         <button className='enter' onClick={() => drawWinner(k)}> Draw Winner </button>
                                         <button className='enter' onClick={() => winnerNFT(k)}> Give NFT to Winner </button>
                                     </div>

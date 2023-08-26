@@ -15,7 +15,7 @@ contract NFT is ERC721, ERC721URIStorage {
         uint256 indexed tokenId
     );
 
-    constructor() ERC721("Robot", "RBT") {
+    constructor() ERC721("AI_Prompt", "AIP") {
         tokenID = 0 ;
     }
 
@@ -55,6 +55,10 @@ contract NFT is ERC721, ERC721URIStorage {
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function getTokenId () public view returns (uint256){
+        return tokenID;
     }
 
 }
