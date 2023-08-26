@@ -40,8 +40,6 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         );
         require(success);
         randomBytes = abi.decode(result, (bytes32));
-        // IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
-        // nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[0],s_raffles[s_raffleId[0]].tokenId);
     }
 
     /**

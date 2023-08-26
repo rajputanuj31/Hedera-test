@@ -32,7 +32,7 @@ body {
 	border-radius: 5%;
 	margin-bottom: 15px;
 	object-fit: cover;
-	
+
 }
 
 .card-title {
@@ -82,6 +82,7 @@ body {
 	text-align: center;
 	text-decoration: none;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	margin: 1rem;
 }
 .enter:hover{
 	background: linear-gradient(135deg, #005fbf, #00a2e6);

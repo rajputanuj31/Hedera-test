@@ -17,6 +17,7 @@ export default function () {
     const [tokenID, setTokenID] = useState('');
     const [amount, setAmount] = useState('');
     const [NFTaddressInput, setNFTaddressInput] = useState('');
+    const [winner,setWinner] = useState('NotDecided');
     const [particpation, setParticipation] = useState(false);
 
     useEffect(() => {
@@ -82,16 +83,18 @@ export default function () {
             const signer = provider.getSigner();
             console.log(signer)
             const gasLimit = 600000;
+
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
             const createTx = await AIcontract.particantCount(0);
 
             const participantsArr = await AIcontract.getParticipants(0);
             console.log(participantsArr);
+
             if(participantsArr.includes(walletData[0])){
-                console.log('Founds');
+                setParticipation(true);
             }
             else{
-                console.log('Not')
+                setParticipation(false);
             }
             
             console.log(createTx)
@@ -121,7 +124,6 @@ export default function () {
         let txHash;
         try {
 
-
             const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
             const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
             const approveRx = await createApproveTx.wait()
@@ -141,6 +143,24 @@ export default function () {
         } catch (executeError) {
             console.log(`- ${executeError}`);
         }
+    }
+
+    async function enterRaffle(raffleId,amount){
+        const provider = walletData[1];
+        const signer = provider.getSigner();
+        const gasLimit = 600000;
+        console.log(amount)
+         try {
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            const createTx = await AIcontract.enterRaffle(parseInt(raffleId), { gasLimit: gasLimit, value: amount });
+            const mintRx = await createTx.wait();
+            console.log(mintRx);
+
+         } catch (error) {
+            console.log(error);
+         }
+
+        console.log(raffleId);
     }
 
 
@@ -179,15 +199,16 @@ export default function () {
                                         <p>Created by: {(e.Creator)}</p>
                                         <p>Total Participants : {participants}</p>
                                         <p>Price to enter the raffle : {e.Amount} HBAR</p>
-
-                                        <button className='enter' >Enter Raffle</button>
+                                        <p>Winner : {}</p>
+                                        <button className='enter' id='enterRaff' onClick={()=>enterRaffle(k,e.Amount)}>Enter Raffle</button>
+                                        <button className='enter'> Draw Winner </button>
                                     </div>
                                     <button className="popup-close-button" onClick={handleClosePopup}>&times;</button>
                                 </div>
                             </div>
                         )}
-                        <button className="card-button" onClick={() => handleButtonClick(k)}>Enter Raffle</button>
-
+                        <button className="card-button"  onClick={() => handleButtonClick(k)}>Enter Raffle</button>
+                        
                     </div>
                 )
                 )}
