@@ -8,8 +8,8 @@ import AIabi from "../contracts/AIabi.js";
 import NFTabi from '../contracts/NFTabi'
 import hederaImage from './hedera.png';
 import walletConnectFcn from "../components/hedera/walletConnect";
-const NFTaddress = '0x8d7BFbDF387C41FD24D289f5a204cb5b30242263';
-const AIaddress = '0xA409A86BEBa395e3210ADb95bD3dBEd92Dad74d5';
+const NFTaddress = '0x1c89575eE52fBc3Bc2711f6a527D126616Af8890';
+const AIaddress = '0xdd791fa1BC0F9f1989e541a782c3FeCBe8C239d4';
 
 export default function () {
 
@@ -52,7 +52,7 @@ export default function () {
 
             let fill = [];
             const data = await (await fetch(url)).json();
-            
+            console.log(data)
             for (let i = 0; i < data.messages.length; i++) {
 
                 var b = Buffer.from(data.messages[i].message, 'base64')
@@ -62,7 +62,7 @@ export default function () {
                 const dataObject = {};
                 for (const pair of pairs) {
                     let [key, value] = pair.split(':');
-                    if(key=='amount'){
+                    if (key == 'amount') {
                         value = ethers.utils.formatEther(value)
                     }
                     dataObject[key] = value;
@@ -109,37 +109,39 @@ export default function () {
         const provider = walletData[1];
         const signer = provider.getSigner();
 
-        const topicid = '0.0.1061015';
-
-        const message = `current:open,tokenId:${tokenID},amount:${amount},creator:${walletData[0]},image:${ipfsHash}`
-        console.log(message);
-
-        let sendResponse = await new TopicMessageSubmitTransaction({
-            topicId: topicid, 
-            message: message,
-        }).execute(client);
-        
-        const getReceipt = await sendResponse.getReceipt(client);
-        
-        const transactionStatus = getReceipt.status
-        console.log("The message transaction status " + transactionStatus.toString())
-
         let txHash;
         try {
-
-            const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
-            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
-            const approveRx = await createApproveTx.wait()
-
-            console.log(approveRx)
-
             const gasLimit = 600000;
+            console.log('SSSSSSSSSSSSSSSS',NFTaddressInput);
+
+            const NFTcontract = new ethers.Contract(NFTaddress, NFTabi, signer);
+            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true, { gasLimit: gasLimit });
+            const approveRx = await createApproveTx.wait();
+            console.log(approveRx);
+            console.log(approveRx)
+            console.log('AAAAAA')
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
 
-            const createTx = await AIcontract.createRaffle(parseInt(tokenID), amount, NFTaddressInput, { gasLimit: gasLimit });
+            const createTx = await AIcontract.createRaffle(parseInt(tokenID), parseInt(amount), NFTaddressInput, { gasLimit: gasLimit });
             const mintRx = await createTx.wait();
             console.log(createTx)
+
             txHash = mintRx.transactionHash;
+
+            const topicid = '0.0.1074528';
+
+            const message = `current:open,tokenId:${tokenID},amount:${amount},creator:${walletData[0]},image:${ipfsHash}`
+            console.log(message);
+
+            let sendResponse = await new TopicMessageSubmitTransaction({
+                topicId: topicid,
+                message: message,
+            }).execute(client);
+
+            const getReceipt = await sendResponse.getReceipt(client);
+
+            const transactionStatus = getReceipt.status
+            console.log("The message transaction status " + transactionStatus.toString())
 
             // CHECK SMART CONTRACT STATE AGAIN
             console.log(`- Contract executed. Transaction hash: \n${txHash} ✅`);
@@ -155,7 +157,8 @@ export default function () {
         console.log(amount)
         try {
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
-            const createTx = await AIcontract.enterRaffle(parseInt(raffleId), { gasLimit: gasLimit, value: amount });
+            const weiAmount = ethers.utils.parseEther(amount.toString());
+            const createTx = await AIcontract.enterRaffle(parseInt(raffleId), { gasLimit: gasLimit, value: parseInt(weiAmount) });
             const mintRx = await createTx.wait();
             console.log(mintRx);
 
@@ -225,10 +228,10 @@ export default function () {
                 console.log(participantsArr);
                 let winner;
                 // console.log(createTx)
-                if((createTx.toString()!=0)){
+                if ((createTx.toString() != 0)) {
                     winner = await AIcontract.winner(parseInt(activePopupIndex));
                 }
-                
+
                 if (participantsArr.includes(walletData[0])) {
                     console.log('S')
                     setParticipation(true);
@@ -241,13 +244,16 @@ export default function () {
                 console.log(createTx)
                 console.log(activePopupIndex)
                 setParticipants(createTx.toString())
-                if(createTx.toString()==0){
+                if (createTx.toString() == 0) {
                     setWinner('Not Decided')
                 }
-                else{
+                else if (winner.toString() == "0x0000000000000000000000000000000000000000") {
+                    setWinner('Not Decided')
+                }
+                else {
                     setWinner(winner.toString())
                 }
-                
+
             }
 
         }
@@ -262,7 +268,7 @@ export default function () {
                     <input type="text" placeholder="Token ID" className='create-textfield' onChange={((e) => { setTokenID(e.target.value) })} />
                     <input type="text" placeholder="Amount" className='create-textfield' onChange={((e) => { setAmount(e.target.value) })} />
                     <input type="text" placeholder="NFT Address" className='create-textfield' onChange={((e) => { setNFTaddressInput(e.target.value) })} />
-                    <input type="text" placeholder="NFT Address" className='create-textfield' onChange={((e) => { setIPFShash(e.target.value) })} />
+                    <input type="text" placeholder="IPFS Hash" className='create-textfield' onChange={((e) => { setIPFShash(e.target.value) })} />
                     <button id="submitButton" className='raffle-create' onClick={handleSubmit}>Submit</button>
                 </div>
             </div>
@@ -284,7 +290,7 @@ export default function () {
                         {activePopupIndex === k && (
                             <div className="popup-overlay">
                                 <div className="popup-content">
-                                <img src={`https://ipfs.io/ipfs/${(e.Image)}`} className='popup-image' />
+                                    <img src={`https://ipfs.io/ipfs/${(e.Image)}`} className='popup-image' />
                                     <div className='popup-info'>
                                         <h2>Token Id: #{e.TokenId}</h2>
                                         <p>Created by: {(e.Creator)}</p>

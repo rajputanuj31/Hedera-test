@@ -17,8 +17,8 @@ import axios from 'axios';
 
 const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI0MjQyZTQzYi0zODNiLTRhYjUtYWE1NC04YTc1MzIzYTY4NDQiLCJlbWFpbCI6ImFzaHV0b3NoMjZqaGFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImI2NzI4ZDNmNWRjNjhjMzRhNWY4Iiwic2NvcGVkS2V5U2VjcmV0IjoiZGM3OTJkYjZhNzVkOTI5Y2MyNDllOGZkZDE2MGFhZDI3OGQwMmI1MmJmY2Y2OTQ1NTM4NDM4MjJkMjBiOTQwOSIsImlhdCI6MTY5MjgwNzQ2M30.c4mAp57G4DXIOvuMnYCtheJl6oO2MXMqJse49KSrXYo';
 const API_TOKEN = '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'
-const NFTaddress = '0x8d7BFbDF387C41FD24D289f5a204cb5b30242263';
-const AIaddress = '0xA409A86BEBa395e3210ADb95bD3dBEd92Dad74d5';
+const NFTaddress = '0x1c89575eE52fBc3Bc2711f6a527D126616Af8890';
+const AIaddress = '0xdd791fa1BC0F9f1989e541a782c3FeCBe8C239d4';
 
 function App() {
 	const [walletData, setWalletData] = useState();
@@ -81,7 +81,7 @@ function App() {
 			}
 		});
 		const helloIMG = `https://ipfs.io/ipfs/${res.data.IpfsHash}`;
-		setHash(helloIMG);
+		setHash(res.data.IpfsHash);
 		setImageUrl(helloIMG);
 		console.log(res.data.IpfsHash);
 	}
@@ -135,7 +135,7 @@ function App() {
 			<div className="App">
 				<Navbar fcn={connectWallet} buttonLabel={walletText} />
 				<Routes>
-					<Route path="/" element={<Home mintfcn={mintNFT} hellofcn={hello} inptxt={inputtext} fcn3={handleInputChange} image={imageurl} load={isLoading}/>} />
+					<Route path="/" element={<Home mintfcn={mintNFT} hellofcn={hello} inptxt={inputtext} fcn3={handleInputChange} image={imageurl} load={isLoading} hash={hash}/>} />
 					<Route path="/raffle" element={<Raffle />} />
 				</Routes>
 				
