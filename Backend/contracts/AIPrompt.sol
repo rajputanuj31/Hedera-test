@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// ADD RANDNUM
+// IT WILL BE BETTER TO GIVE NFT TO RANDNUM
+
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./IPrngSystemContract.sol";
@@ -40,8 +43,6 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
         );
         require(success);
         randomBytes = abi.decode(result, (bytes32));
-        // IERC721 nft = IERC721(s_raffles[s_raffleId[0]].nftAddress);
-        // nft.transferFrom(address(this),s_raffles[s_raffleId[0]].addresses[0],s_raffles[s_raffleId[0]].tokenId);
     }
 
     /**

@@ -10,13 +10,15 @@ import walletConnectFcn from "../components/hedera/walletConnect";
 const AIaddress = '0x30CA0bb56d58c01E702B1b49895d5cB5249F76f1';
 const NFTaddress = '0xb39C1Ae40746F96be59d11C42e26a24EbdA154Ce';
 
-export default function (props) {
+export default function () {
 
     const [raffleDetails, setRaffleDetails] = useState([]);
     const [walletData, setWalletData] = useState([]);
     const [tokenID, setTokenID] = useState('');
     const [amount, setAmount] = useState('');
-    const [NFTaddressInput, setNFTaddressInput] = useState('')
+    const [NFTaddressInput, setNFTaddressInput] = useState('');
+    const [winner, setWinner] = useState('Not Decided');
+    const [particpation, setParticipation] = useState(false);
 
     useEffect(() => {
 
@@ -46,6 +48,7 @@ export default function (props) {
         });
 
         async function getHedera() {
+
             let fill = [];
             const data = await (await fetch(url)).json();
 
@@ -76,10 +79,27 @@ export default function (props) {
             const wData = await walletConnectFcn();
             console.log(wData)
             setWalletData(wData);
+            const provider = wData[1];
+            const signer = provider.getSigner();
+            console.log(signer)
+            const gasLimit = 600000;
+
         }
 
         walletData();
     }, [])
+
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [activePopupIndex, setActivePopupIndex] = useState(null);
+    const [participants, setParticipants] = useState('');
+
+    const handleButtonClick = (index) => {
+        setActivePopupIndex(index);
+    };
+
+    const handleClosePopup = () => {
+        setActivePopupIndex(null);
+    };
 
     async function handleSubmit() {
         const provider = walletData[1];
@@ -88,11 +108,10 @@ export default function (props) {
         let txHash;
         try {
 
+            const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
+            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
+            const approveRx = await createApproveTx.wait()
 
-            const NFTcontract = new ethers.Contract(NFTaddressInput,NFTabi,signer);
-            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress,true);
-            const approveRx = await createApproveTx.wait();
-            
             console.log(approveRx)
 
             const gasLimit = 600000;
@@ -110,6 +129,102 @@ export default function (props) {
         }
     }
 
+    async function enterRaffle(raffleId, amount) {
+        const provider = walletData[1];
+        const signer = provider.getSigner();
+        const gasLimit = 600000;
+        console.log(amount)
+        try {
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            const createTx = await AIcontract.enterRaffle(parseInt(raffleId), { gasLimit: gasLimit, value: amount });
+            const mintRx = await createTx.wait();
+            console.log(mintRx);
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        console.log(raffleId);
+    }
+
+    async function drawWinner(raffleId) {
+        const provider = walletData[1];
+        const signer = provider.getSigner();
+        const gasLimit = 600000;
+        try {
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            console.log('Generating')
+            const createTx = await AIcontract.generateWinner(0, parseInt(participants), parseInt(raffleId), { gasLimit: gasLimit });
+            const mintRx = await createTx.wait();
+            console.log('Generated');
+
+
+            console.log(mintRx);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function winnerNFT(raffleId) {
+
+        const provider = walletData[1];
+        const signer = provider.getSigner();
+        const gasLimit = 600000;
+
+        try {
+            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+            console.log('Transfering NFT')
+
+            const createTx = await AIcontract.winnerGetNFT(parseInt(raffleId), { gasLimit: gasLimit });
+            const mintRx = await createTx.wait();
+            console.log('NFT transfered');
+
+            const NFTtoken = await AIcontract.getRaffleTokenId(parseInt(raffleId), { gasLimit: gasLimit });
+            console.log(NFTtoken)
+            const NFTcontract = new ethers.Contract(NFTaddress, NFTabi, signer);
+            const owner = await NFTcontract.ownerOf(parseInt(NFTtoken.toString()));
+
+            console.log('OWNER OF NFT ', owner)
+
+            console.log(mintRx);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        async function hello() {
+            
+            if (activePopupIndex != null) {
+                const provider = walletData[1];
+                const signer = provider.getSigner();
+
+                const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+                const createTx = await AIcontract.particantCount(parseInt(activePopupIndex))
+
+                const participantsArr = await AIcontract.getParticipants(parseInt(activePopupIndex));
+                console.log(participantsArr);
+
+                const winner = await AIcontract.winner(parseInt(activePopupIndex));
+
+                if (participantsArr.includes(walletData[0])) {
+                    setParticipation(true);
+                }
+                else {
+                    setParticipation(false);
+                }
+
+                console.log(createTx)
+                console.log(activePopupIndex)
+                setParticipants(createTx.toString())
+                setWinner(winner.toString())
+            }
+        
+        }
+
+        hello()
+    }, [activePopupIndex])
     return (
         <div>
             <div class="container">
@@ -136,7 +251,26 @@ export default function (props) {
                         <p className="card-owner">
                             Created by: {(e.Creator).slice(0, 5)}...{(e.Creator).slice(-4)}
                         </p>
-                        <button className="card-button">Enter Raffle</button>
+                        {activePopupIndex === k && (
+                            <div className="popup-overlay">
+                                <div className="popup-content">
+                                    <img src={sampleImage} className='popup-image' />
+                                    <div className='popup-info'>
+                                        <h2>Token Id: #{e.TokenId}</h2>
+                                        <p>Created by: {(e.Creator)}</p>
+                                        <p>Total Participants : {participants}</p>
+                                        <p>Price to enter the raffle : {e.Amount} HBAR</p>
+                                        <p>Winner : {winner}</p>
+                                        {particpation && <button className='enter' id='enterRaff' onClick={() => enterRaffle(k, e.Amount)}>Enter Raffle</button>}
+                                        <button className='enter' onClick={() => drawWinner(k)}> Draw Winner </button>
+                                        <button className='enter' onClick={() => winnerNFT(k)}> Give NFT to Winner </button>
+                                    </div>
+                                    <button className="popup-close-button" onClick={handleClosePopup}>&times;</button>
+                                </div>
+                            </div>
+                        )}
+                        <button className="card-button" onClick={() => handleButtonClick(k)}>Enter Raffle</button>
+
                     </div>
                 )
                 )}

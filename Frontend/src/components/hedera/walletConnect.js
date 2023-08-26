@@ -45,7 +45,7 @@ async function walletConnectFcn() {
 			console.log(`- ${connectError.message.toString()}`);
 			return;
 		});
-
+		console.log(provider.getSigner())
 	return [selectedAccount, provider, network];
 }
 

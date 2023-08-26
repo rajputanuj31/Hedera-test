@@ -106,22 +106,6 @@ function App() {
 		}
 	}
 
-	// async function contractDeploy() {
-	// 	if (account === undefined) {
-	// 		setContractTextSt("🛑 Connect a wallet first! 🛑");
-	// 	} else {
-	// 		const cAddress = await contractDeployFcn(walletData);
-
-	// 		if (cAddress === undefined) {
-	// 		} else {
-	// 			setContractAddress(cAddress);
-	// 			setContractTextSt(`Contract ${cAddress} deployed ✅`);
-	// 			setExecuteTextSt(``);
-	// 			setContractLinkSt(`https://hashscan.io/${network}/address/${cAddress}`);
-	// 		}
-	// 	}
-	// }
-
 	async function mintNFT() {
 
 		const provider = walletData[1];
