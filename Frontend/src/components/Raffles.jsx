@@ -17,7 +17,7 @@ export default function () {
     const [tokenID, setTokenID] = useState('');
     const [amount, setAmount] = useState('');
     const [NFTaddressInput, setNFTaddressInput] = useState('');
-    const [winner, setWinner] = useState('NotDecided');
+    const [winner, setWinner] = useState('Not Decided');
     const [particpation, setParticipation] = useState(false);
 
     useEffect(() => {
@@ -84,22 +84,6 @@ export default function () {
             console.log(signer)
             const gasLimit = 600000;
 
-            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
-            const createTx = await AIcontract.particantCount(0);
-
-            const participantsArr = await AIcontract.getParticipants(0);
-            console.log(participantsArr);
-
-            if (participantsArr.includes(walletData[0])) {
-                setParticipation(true);
-            }
-            else {
-                setParticipation(false);
-            }
-
-            console.log(createTx)
-            console.log(activePopupIndex)
-            setParticipants(createTx.toString())
         }
 
         walletData();
@@ -170,9 +154,11 @@ export default function () {
         try {
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
             console.log('Generating')
-            const createTx = await AIcontract.generateWinner(0, parseInt(participants), parseInt(raffleId), { gasLimit: gasLimit});
+            const createTx = await AIcontract.generateWinner(0, parseInt(participants), parseInt(raffleId), { gasLimit: gasLimit });
             const mintRx = await createTx.wait();
-            console.log('Generated')
+            console.log('Generated');
+
+
             console.log(mintRx);
 
         } catch (error) {
@@ -180,7 +166,7 @@ export default function () {
         }
     }
 
-    async function winnerNFT(raffleId){
+    async function winnerNFT(raffleId) {
 
         const provider = walletData[1];
         const signer = provider.getSigner();
@@ -190,15 +176,15 @@ export default function () {
             const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
             console.log('Transfering NFT')
 
-            const createTx = await AIcontract.winnerGetNFT( parseInt(raffleId), { gasLimit: gasLimit});
+            const createTx = await AIcontract.winnerGetNFT(parseInt(raffleId), { gasLimit: gasLimit });
             const mintRx = await createTx.wait();
             console.log('NFT transfered');
 
-            const NFTtoken = await AIcontract.getRaffleTokenId(parseInt(raffleId), { gasLimit: gasLimit});
+            const NFTtoken = await AIcontract.getRaffleTokenId(parseInt(raffleId), { gasLimit: gasLimit });
             console.log(NFTtoken)
             const NFTcontract = new ethers.Contract(NFTaddress, NFTabi, signer);
             const owner = await NFTcontract.ownerOf(parseInt(NFTtoken.toString()));
-    
+
             console.log('OWNER OF NFT ', owner)
 
             console.log(mintRx);
@@ -207,7 +193,38 @@ export default function () {
             console.log(error);
         }
     }
-    
+    useEffect(() => {
+        async function hello() {
+            
+            if (activePopupIndex != null) {
+                const provider = walletData[1];
+                const signer = provider.getSigner();
+
+                const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+                const createTx = await AIcontract.particantCount(parseInt(activePopupIndex))
+
+                const participantsArr = await AIcontract.getParticipants(parseInt(activePopupIndex));
+                console.log(participantsArr);
+
+                const winner = await AIcontract.winner(parseInt(activePopupIndex));
+
+                if (participantsArr.includes(walletData[0])) {
+                    setParticipation(true);
+                }
+                else {
+                    setParticipation(false);
+                }
+
+                console.log(createTx)
+                console.log(activePopupIndex)
+                setParticipants(createTx.toString())
+                setWinner(winner.toString())
+            }
+        
+        }
+
+        hello()
+    }, [activePopupIndex])
     return (
         <div>
             <div class="container">
@@ -243,8 +260,8 @@ export default function () {
                                         <p>Created by: {(e.Creator)}</p>
                                         <p>Total Participants : {participants}</p>
                                         <p>Price to enter the raffle : {e.Amount} HBAR</p>
-                                        <p>Winner : { }</p>
-                                        <button className='enter' id='enterRaff' onClick={() => enterRaffle(k, e.Amount)}>Enter Raffle</button>
+                                        <p>Winner : {winner}</p>
+                                        {particpation && <button className='enter' id='enterRaff' onClick={() => enterRaffle(k, e.Amount)}>Enter Raffle</button>}
                                         <button className='enter' onClick={() => drawWinner(k)}> Draw Winner </button>
                                         <button className='enter' onClick={() => winnerNFT(k)}> Give NFT to Winner </button>
                                     </div>
