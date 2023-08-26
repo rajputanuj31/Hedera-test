@@ -1,5 +1,7 @@
 import { client, url, topicId } from './helper'
 import { ethers } from "ethers";
+import {Client, Hbar, TopicCreateTransaction, TopicMessageSubmitTransaction} from '@hashgraph/sdk';
+
 import { useEffect, useState } from 'react';
 import { Buffer } from 'buffer';
 import sampleImage from './sample.png';
@@ -56,7 +58,7 @@ export default function () {
 
                 var b = Buffer.from(data.messages[i].message, 'base64')
                 var inputString = b.toString();
-
+                console.log(inputString)
                 const pairs = inputString.split(',');
                 const dataObject = {};
                 for (const pair of pairs) {
@@ -71,7 +73,6 @@ export default function () {
                 fill.push(formattedObject)
             }
             setRaffleDetails(fill);
-            console.log(fill)
         }
         getHedera();
 
@@ -102,31 +103,51 @@ export default function () {
     };
 
     async function handleSubmit() {
+
+        let txResponse = await new TopicCreateTransaction().execute(client);
+        let receipt = await txResponse.getReceipt(client);
+        let topicId = receipt.topicId;
+        console.log(`Your topic ID is: ${topicId}`);
+
+        const testing = '0.0.1048130';
+
         const provider = walletData[1];
         const signer = provider.getSigner();
 
+        let sendResponse = await new TopicMessageSubmitTransaction({
+            topicId: testing,
+            message: `current:open,tokenId:0,amount:1000,creator:0x8dda9E1097515F2d0896bC13D0599e429f8675e7,image:QmQNuZV7h4erq8pGLWcXcaT4rdRizRuEnMbimndgst7iFu`,
+        }).execute(client);
+        
+        // Get the receipt of the transaction
+        const getReceipt = await sendResponse.getReceipt(client);
+        
+        // Get the status of the transaction
+        const transactionStatus = getReceipt.status
+        console.log("The message transaction status " + transactionStatus.toString())
+
         let txHash;
-        try {
+        // try {
 
-            const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
-            const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
-            const approveRx = await createApproveTx.wait()
+        //     const NFTcontract = new ethers.Contract(NFTaddressInput, NFTabi, signer);
+        //     const createApproveTx = await NFTcontract.setApprovalForAll(AIaddress, true);
+        //     const approveRx = await createApproveTx.wait()
 
-            console.log(approveRx)
+        //     console.log(approveRx)
 
-            const gasLimit = 600000;
-            const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
+        //     const gasLimit = 600000;
+        //     const AIcontract = new ethers.Contract(AIaddress, AIabi, signer);
 
-            const createTx = await AIcontract.createRaffle(parseInt(tokenID), amount, NFTaddressInput, { gasLimit: gasLimit });
-            const mintRx = await createTx.wait();
-            console.log(createTx)
-            txHash = mintRx.transactionHash;
+        //     const createTx = await AIcontract.createRaffle(parseInt(tokenID), amount, NFTaddressInput, { gasLimit: gasLimit });
+        //     const mintRx = await createTx.wait();
+        //     console.log(createTx)
+        //     txHash = mintRx.transactionHash;
 
-            // CHECK SMART CONTRACT STATE AGAIN
-            console.log(`- Contract executed. Transaction hash: \n${txHash} ✅`);
-        } catch (executeError) {
-            console.log(`- ${executeError}`);
-        }
+        //     // CHECK SMART CONTRACT STATE AGAIN
+        //     console.log(`- Contract executed. Transaction hash: \n${txHash} ✅`);
+        // } catch (executeError) {
+        //     console.log(`- ${executeError}`);
+        // }
     }
 
     async function enterRaffle(raffleId, amount) {
