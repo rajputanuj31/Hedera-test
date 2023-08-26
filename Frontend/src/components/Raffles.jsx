@@ -74,6 +74,7 @@ export default function () {
 
                 fill.push(formattedObject)
             }
+            console.log(fill)
             setRaffleDetails(fill);
         }
         getHedera();
@@ -269,7 +270,7 @@ export default function () {
 
                 {raffleDetails.map((e, k) => (
                     <div className="card">
-                        <img src={sampleImage} alt="Sample" className="card-image" />
+                        <img src={`https://ipfs.io/ipfs/${(e.Image)}`} alt="Sample" className="card-image" />
                         <div className='token_id'>
                             Token Id: #{e.TokenId}
                         </div>
@@ -283,7 +284,7 @@ export default function () {
                         {activePopupIndex === k && (
                             <div className="popup-overlay">
                                 <div className="popup-content">
-                                    <img src={sampleImage} className='popup-image' />
+                                <img src={`https://ipfs.io/ipfs/${(e.Image)}`} className='popup-image' />
                                     <div className='popup-info'>
                                         <h2>Token Id: #{e.TokenId}</h2>
                                         <p>Created by: {(e.Creator)}</p>

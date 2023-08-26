@@ -17,6 +17,10 @@ const Home = (props) => {
 			) : (
 				<p>{props.load ? 'Please wait...' : ''}</p>
 			)}
+			<div style={{width:"100%"}}>
+				<p className="Stake"> Ticket your AI generated NFT on</p>
+				<p className="Hedera">Token Hunt</p>
+			</div>
 		</div>
 	);
 }

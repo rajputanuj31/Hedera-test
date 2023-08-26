@@ -13,7 +13,7 @@
     margin: 2rem;
 }
 .home p{
-    font-size: 30px;
+    /* font-size: 30px; */
     text-align: center;
 }
 .home img{
@@ -39,4 +39,26 @@
 .mint button{
     width: 50%;
     margin: 2rem;
+}
+
+.Stake {
+	font-size: 70px;
+	font-weight: 400;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	color: white;
+	text-align: center;
+	background: -webkit-linear-gradient(#eee, #464646);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.Hedera {
+	font-size: 70px;
+	font-weight: 400;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	color: white;
+	text-align: center;
+	background: -webkit-linear-gradient(#eee, #464646);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }

@@ -74,7 +74,7 @@ contract AIPrompt is IERC721Receiver, IPrngSystemContract {
     }
 
     function winner(uint256 _id) public view returns (address){
-        return s_raffles[s_raffleId[_id]].addresses[randNum];
+        return s_raffles[s_raffleId[_id]].winner;
     }
 
     function winnerGetNFT(uint256 _id)public{

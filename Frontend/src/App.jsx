@@ -138,6 +138,7 @@ function App() {
 					<Route path="/" element={<Home mintfcn={mintNFT} hellofcn={hello} inptxt={inputtext} fcn3={handleInputChange} image={imageurl} load={isLoading}/>} />
 					<Route path="/raffle" element={<Raffle />} />
 				</Routes>
+				
 				{/* <MyGroup fcn={connectWallet} buttonLabel={"Connect Wallet"} link={connectLinkSt} />
 				<MyGroup fcn={contractDeploy} buttonLabel={"Deploy Contract"} text={contractTextSt} link={contractLinkSt} />
 				<MyGroup fcn={contractExecute} buttonLabel={"Execute Contract (+1)"} text={executeTextSt} link={executeLinkSt} /> */}

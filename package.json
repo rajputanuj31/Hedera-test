@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@hashgraph/sdk": "^2.32.0",
     "@pinata/sdk": "^2.1.0",
     "axios": "^1.4.0",
     "axios-retry": "^3.6.0"
